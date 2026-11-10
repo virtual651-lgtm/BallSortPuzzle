@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Renk Tüpleri</string>
+    <string name="menu_subtitle">Renkli topları tüplere göre sırala</string>
+    <string name="menu_continue">Devam Et (Seviye %1$d)</string>
+    <string name="menu_play">Oyna (Seviye %1$d)</string>
+    <string name="menu_daily_challenge">Günlük Meydan Okuma</string>
+    <string name="menu_daily_done">Günlük Meydan Okuma (Tamamlandı)</string>
+    <string name="menu_levels">Seviyeler</string>
+    <string name="menu_howto">Nasıl Oynanır?</string>
+    <string name="menu_settings">Ayarlar</string>
+
+    <string name="update_available_title">Yeni Güncelleme Mevcut (%1$s)</string>
+    <string name="update_available_action">İndir</string>
+
+    <string name="level_title">Seviye %1$d</string>
+    <string name="daily_level_title">Günlük</string>
+    <string name="moves_label">%1$d hamle</string>
+    <string name="action_undo">Geri Al</string>
+    <string name="action_restart">Yeniden</string>
+    <string name="action_hint">İpucu</string>
+    <string name="action_add_tube">+Tüp</string>
+    <string name="back">Geri</string>
+
+    <string name="win_title">Tebrikler!</string>
+    <string name="win_subtitle">Seviye %1$d tamamlandı</string>
+    <string name="win_daily_subtitle">Günlük meydan okuma tamamlandı</string>
+    <string name="win_moves">Hamle: %1$d</string>
+    <string name="win_time">Süre: %1$s</string>
+    <string name="win_next_level">Sonraki Seviye</string>
+    <string name="win_replay">Tekrar Oyna</string>
+    <string name="win_menu">Ana Menü</string>
+
+    <string name="stuck_title">Hamle Kalmadı</string>
+    <string name="stuck_message">Yapılabilecek anlamlı bir hamle kalmadı. Geri alabilir, yeniden başlatabilir veya ekstra tüp ekleyebilirsin.</string>
+
+    <string name="exit_dialog_title">Oyundan Çıkılsın mı?</string>
+    <string name="exit_dialog_message">İlerlemen otomatik olarak kaydedildi.</string>
+    <string name="exit_confirm">Çık</string>
+    <string name="cancel">İptal</string>
+
+    <string name="levels_title">Seviyeler</string>
+    <string name="levels_locked">Kilitli</string>
+    <string name="levels_best_moves">En iyi: %1$d</string>
+
+    <string name="settings_title">Ayarlar</string>
+    <string name="settings_sound">Ses Efektleri</string>
+    <string name="settings_vibration">Titreşim</string>
+    <string name="settings_multi_move">Çoklu Top Taşıma</string>
+    <string name="settings_multi_move_desc">Üstteki aynı renkli topları tek hamlede taşır</string>
+    <string name="settings_color_blind">Renk Körlüğü Modu</string>
+    <string name="settings_color_blind_desc">Topların üzerinde sembol gösterir</string>
+    <string name="settings_dynamic_color">Dinamik Renk (Material You)</string>
+    <string name="settings_theme">Tema</string>
+    <string name="theme_system">Sistem</string>
+    <string name="theme_light">Açık</string>
+    <string name="theme_dark">Koyu</string>
+    <string name="settings_language">Dil</string>
+    <string name="lang_system">Sistem</string>
+    <string name="lang_tr">Türkçe</string>
+    <string name="lang_en">English</string>
+
+    <string name="howto_title">Nasıl Oynanır?</string>
+    <string name="howto_rule_1_title">1. Top Seç ve Taşı</string>
+    <string name="howto_rule_1_desc">Bir tüpe dokunarak en üstteki topu seç, ardından hedef tüpe dokunarak taşı.</string>
+    <string name="howto_rule_2_title">2. Renk Eşleşmesi</string>
+    <string name="howto_rule_2_desc">Topu yalnızca boş bir tüpe veya en üstünde aynı renk top bulunan tüpe koyabilirsin (tüpte yer varsa).</string>
+    <string name="howto_rule_3_title">3. Kazanma Koşulu</string>
+    <string name="howto_rule_3_desc">Her dolu tüp tek bir renkten oluştuğunda ve kalan tüpler boş olduğunda seviyeyi geçersin.</string>
+    <string name="howto_rule_4_title">4. Yardımcılar</string>
+    <string name="howto_rule_4_desc">Takılırsan Geri Al, Yeniden Başlat, İpucu veya seviye başına 1 kez Ekstra Tüp kullanabilirsin.</string>
+
+    <string name="a11y_tube_empty">Tüp %1$d: boş</string>
+    <string name="a11y_tube_contents">Tüp %1$d: alttan üste %2$s</string>
+    <string name="a11y_tube_selected">Seçili</string>
+    <string name="a11y_tube_hint_source">İpucu kaynağı</string>
+    <string name="a11y_tube_hint_target">İpucu hedefi</string>
+
+    <string name="color_red">Kırmızı</string>
+    <string name="color_blue">Mavi</string>
+    <string name="color_yellow">Sarı</string>
+    <string name="color_green">Yeşil</string>
+    <string name="color_purple">Mor</string>
+    <string name="color_orange">Turuncu</string>
+    <string name="color_cyan">Camgöbeği</string>
+    <string name="color_pink">Pembe</string>
+    <string name="color_lime">Fıstık Yeşili</string>
+    <string name="color_brown">Kahverengi</string>
+    <string name="color_indigo">Çivit</string>
+    <string name="color_teal">Turkuaz</string>
+</resources>
+

@@ -1,0 +1,265 @@
+/*
+ * com.example.ballsort.ui.components
+ * Cam efektli tüp bileşeni: seçim kaldırma, geçersiz hamle sallanması, ipucu vurgusu ve TalkBack.
+ */
+package com.example.ballsort.ui.components
+
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.keyframes
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.scale
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.positionInRoot
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.dp
+import com.example.ballsort.R
+import com.example.ballsort.domain.GameLogic
+import com.example.ballsort.domain.model.Tube
+import com.example.ballsort.ui.theme.ballEntryFor
+import kotlin.math.roundToInt
+
+@Composable
+fun TubeView(
+    index: Int,
+    tube: Tube,
+    capacity: Int,
+    tubeWidth: Dp,
+    ballSize: Dp,
+    isSelected: Boolean,
+    isHintSource: Boolean,
+    isHintTarget: Boolean,
+    shakeToken: Long,
+    hiddenSlots: IntRange,
+    colorBlind: Boolean,
+    onSlotMeasured: (slotIndex: Int, rootCenter: Offset) -> Unit,
+    onTopExitMeasured: (rootCenter: Offset) -> Unit,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val context = LocalContext.current
+    val density = LocalDensity.current
+    val isCompleted = GameLogic.isTubeCompleted(tube, capacity)
+
+    // Geçersiz hamle sallanma animasyonu
+    val shakeOffset = remember { Animatable(0f) }
+    LaunchedEffect(shakeToken) {
+        if (shakeToken > 0L) {
+            shakeOffset.snapTo(0f)
+            shakeOffset.animateTo(
+                targetValue = 0f,
+                animationSpec = keyframes {
+                    durationMillis = 250
+                    -14f at 40
+                    14f at 90
+                    -10f at 140
+                    10f at 190
+                    0f at 250
+                },
+            )
+        }
+    }
+
+    // Tamamlanan tüpte hafif büyüme nabzı
+    val completeScale = remember { Animatable(1f) }
+    LaunchedEffect(isCompleted) {
+        if (isCompleted) {
+            completeScale.animateTo(1.06f, tween(180))
+            completeScale.animateTo(1f, tween(280))
+        }
+    }
+
+    // İpucu nabzı
+    val infiniteTransition = rememberInfiniteTransition(label = "hintPulse")
+    val hintPulse by infiniteTransition.animateFloat(
+        initialValue = 1f,
+        targetValue = if (isHintSource || isHintTarget) 1.07f else 1f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(550),
+            repeatMode = RepeatMode.Reverse,
+        ),
+        label = "hintScale",
+    )
+
+    // Seçilen tüpün en üst topu yukarı kalkar
+    val topLiftDp by animateDpAsState(
+        targetValue = if (isSelected) 16.dp else 0.dp,
+        animationSpec = tween(150),
+        label = "topLift",
+    )
+
+    val borderColor by animateColorAsState(
+        targetValue = when {
+            isSelected -> MaterialTheme.colorScheme.primary
+            isHintSource -> Color(0xFFFFC107)
+            isHintTarget -> Color(0xFF00E676)
+            isCompleted -> Color(0xFF4CAF50)
+            else -> MaterialTheme.colorScheme.onSurface.copy(alpha = 0.35f)
+        },
+        animationSpec = tween(200),
+        label = "tubeBorder",
+    )
+
+    val tubeBgColor = when {
+        isCompleted -> Color(0xFF4CAF50).copy(alpha = 0.14f)
+        isSelected -> MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)
+        else -> MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.36f)
+    }
+
+    // Erişilebilirlik metinleri
+    val a11yDesc = if (tube.isEmpty()) {
+        stringResource(R.string.a11y_tube_empty, index + 1)
+    } else {
+        val colorNames = tube.joinToString(", ") { colorId ->
+            context.getString(ballEntryFor(colorId).nameRes)
+        }
+        stringResource(R.string.a11y_tube_contents, index + 1, colorNames)
+    }
+
+    val stateDesc = when {
+        isSelected -> stringResource(R.string.a11y_tube_selected)
+        isHintSource -> stringResource(R.string.a11y_tube_hint_source)
+        isHintTarget -> stringResource(R.string.a11y_tube_hint_target)
+        else -> null
+    }
+
+    val spacing = 4.dp
+    val tubeInnerHeight = (ballSize * capacity) + (spacing * (capacity + 1)) + 8.dp
+    val tubeShape = RoundedCornerShape(
+        topStart = 8.dp,
+        topEnd = 8.dp,
+        bottomStart = tubeWidth / 2f,
+        bottomEnd = tubeWidth / 2f,
+    )
+
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = modifier
+            .defaultMinSize(minWidth = 48.dp, minHeight = 48.dp)
+            .offset { IntOffset(shakeOffset.value.roundToInt(), 0) }
+            .scale(completeScale.value * hintPulse)
+            .semantics(mergeDescendants = true) {
+                contentDescription = a11yDesc
+                if (stateDesc != null) stateDescription = stateDesc
+            }
+            .clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null,
+                role = Role.Button,
+                onClick = onClick,
+            )
+            .padding(horizontal = 2.dp),
+    ) {
+        // Seçili topun yükselmesi ve uçuş çıkış noktası için üst boşluk
+        Box(
+            modifier = Modifier
+                .width(tubeWidth)
+                .height(22.dp)
+                .onGloballyPositioned { coords ->
+                    val pos = coords.positionInRoot()
+                    onTopExitMeasured(
+                        Offset(
+                            x = pos.x + coords.size.width / 2f,
+                            y = pos.y + coords.size.height / 2f,
+                        )
+                    )
+                },
+        )
+
+        // Tüp gövdesi
+        Box(
+            contentAlignment = Alignment.BottomCenter,
+            modifier = Modifier
+                .width(tubeWidth)
+                .height(tubeInnerHeight)
+                .background(color = tubeBgColor, shape = tubeShape)
+                .border(
+                    width = if (isSelected || isHintSource || isHintTarget || isCompleted) 2.5.dp else 1.5.dp,
+                    color = borderColor,
+                    shape = tubeShape,
+                )
+                .padding(bottom = 6.dp, top = 4.dp),
+        ) {
+            Column(
+                verticalArrangement = Arrangement.spacedBy(spacing, Alignment.Bottom),
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                // Yukarıdan aşağıya slot indexleri: (capacity - 1) downTo 0
+                for (slot in (capacity - 1) downTo 0) {
+                    val ballColor = tube.getOrNull(slot)
+                    val isTopBall = slot == tube.lastIndex && ballColor != null
+                    val liftPx = if (isTopBall) with(density) { -topLiftDp.toPx() } else 0f
+                    val isHiddenForFlight = slot in hiddenSlots
+
+                    Box(
+                        contentAlignment = Alignment.Center,
+                        modifier = Modifier
+                            .width(ballSize)
+                            .height(ballSize)
+                            .onGloballyPositioned { coords ->
+                                val pos = coords.positionInRoot()
+                                onSlotMeasured(
+                                    slot,
+                                    Offset(
+                                        x = pos.x + coords.size.width / 2f,
+                                        y = pos.y + coords.size.height / 2f,
+                                    ),
+                                )
+                            },
+                    ) {
+                        if (ballColor != null) {
+                            BallView(
+                                colorId = ballColor,
+                                ballSize = ballSize,
+                                colorBlind = colorBlind,
+                                modifier = Modifier
+                                    .offset { IntOffset(0, liftPx.roundToInt()) }
+                                    .alpha(if (isHiddenForFlight) 0f else 1f),
+                            )
+                        } else {
+                            Spacer(modifier = Modifier.height(ballSize))
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+

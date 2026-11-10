@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Ball Sort</string>
+    <string name="menu_subtitle">Sort colored balls into matching tubes</string>
+    <string name="menu_continue">Continue (Level %1$d)</string>
+    <string name="menu_play">Play (Level %1$d)</string>
+    <string name="menu_daily_challenge">Daily Challenge</string>
+    <string name="menu_daily_done">Daily Challenge (Completed)</string>
+    <string name="menu_levels">Levels</string>
+    <string name="menu_howto">How to Play</string>
+    <string name="menu_settings">Settings</string>
+
+    <string name="update_available_title">New Update Available (%1$s)</string>
+    <string name="update_available_action">Download</string>
+
+    <string name="level_title">Level %1$d</string>
+    <string name="daily_level_title">Daily</string>
+    <string name="moves_label">%1$d moves</string>
+    <string name="action_undo">Undo</string>
+    <string name="action_restart">Restart</string>
+    <string name="action_hint">Hint</string>
+    <string name="action_add_tube">+Tube</string>
+    <string name="back">Back</string>
+
+    <string name="win_title">Congratulations!</string>
+    <string name="win_subtitle">Level %1$d completed</string>
+    <string name="win_daily_subtitle">Daily challenge completed</string>
+    <string name="win_moves">Moves: %1$d</string>
+    <string name="win_time">Time: %1$s</string>
+    <string name="win_next_level">Next Level</string>
+    <string name="win_replay">Replay</string>
+    <string name="win_menu">Main Menu</string>
+
+    <string name="stuck_title">No Moves Left</string>
+    <string name="stuck_message">There are no useful moves remaining. You can undo, restart, or add an extra tube.</string>
+
+    <string name="exit_dialog_title">Leave Game?</string>
+    <string name="exit_dialog_message">Your progress has been saved automatically.</string>
+    <string name="exit_confirm">Leave</string>
+    <string name="cancel">Cancel</string>
+
+    <string name="levels_title">Levels</string>
+    <string name="levels_locked">Locked</string>
+    <string name="levels_best_moves">Best: %1$d</string>
+
+    <string name="settings_title">Settings</string>
+    <string name="settings_sound">Sound Effects</string>
+    <string name="settings_vibration">Vibration</string>
+    <string name="settings_multi_move">Multi-Ball Move</string>
+    <string name="settings_multi_move_desc">Moves consecutive matching balls on top at once</string>
+    <string name="settings_color_blind">Colorblind Mode</string>
+    <string name="settings_color_blind_desc">Draws distinct symbols on balls</string>
+    <string name="settings_dynamic_color">Dynamic Color (Material You)</string>
+    <string name="settings_theme">Theme</string>
+    <string name="theme_system">System</string>
+    <string name="theme_light">Light</string>
+    <string name="theme_dark">Dark</string>
+    <string name="settings_language">Language</string>
+    <string name="lang_system">System</string>
+    <string name="lang_tr">Türkçe</string>
+    <string name="lang_en">English</string>
+
+    <string name="howto_title">How to Play</string>
+    <string name="howto_rule_1_title">1. Pick and Move</string>
+    <string name="howto_rule_1_desc">Tap a tube to pick up the top ball, then tap another tube to place it.</string>
+    <string name="howto_rule_2_title">2. Match Colors</string>
+    <string name="howto_rule_2_desc">You can only place a ball into an empty tube or onto a matching top color with space left.</string>
+    <string name="howto_rule_3_title">3. Goal</string>
+    <string name="howto_rule_3_desc">You win when every filled tube holds a single color and remaining tubes are empty.</string>
+    <string name="howto_rule_4_title">4. Helpers</string>
+    <string name="howto_rule_4_desc">Use Undo, Restart, Hint, or 1 Extra Tube per level if you get stuck.</string>
+
+    <string name="a11y_tube_empty">Tube %1$d: empty</string>
+    <string name="a11y_tube_contents">Tube %1$d: bottom to top %2$s</string>
+    <string name="a11y_tube_selected">Selected</string>
+    <string name="a11y_tube_hint_source">Hint source</string>
+    <string name="a11y_tube_hint_target">Hint target</string>
+
+    <string name="color_red">Red</string>
+    <string name="color_blue">Blue</string>
+    <string name="color_yellow">Yellow</string>
+    <string name="color_green">Green</string>
+    <string name="color_purple">Purple</string>
+    <string name="color_orange">Orange</string>
+    <string name="color_cyan">Cyan</string>
+    <string name="color_pink">Pink</string>
+    <string name="color_lime">Lime</string>
+    <string name="color_brown">Brown</string>
+    <string name="color_indigo">Indigo</string>
+    <string name="color_teal">Teal</string>
+</resources>
+
