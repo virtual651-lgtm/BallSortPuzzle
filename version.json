@@ -1,7 +1,7 @@
 {
-  "latestVersionCode": 2,
-  "versionName": "1.0.1",
+  "latestVersionCode": 3,
+  "versionName": "1.0.2",
   "apkUrl": "https://github.com/virtual651-lgtm/BallSortPuzzle/releases/latest/download/app-release.apk",
-  "notes": "Nasıl Oynanır butonu düzeltildi ve Wi-Fi düello için QR kod eklendi"
+  "notes": "Toplam bölüm sayısı 200'e çıkarıldı ve uygulama içi otomatik güncelleme desteği eklendi"
 }
 

@@ -22,8 +22,8 @@ class LevelGeneratorTest {
     }
 
     @Test
-    fun first100Levels_haveExactColorCountsAndValidStarts() {
-        for (levelId in 1..100) {
+    fun all200Levels_haveExactColorCountsAndValidStarts() {
+        for (levelId in 1..200) {
             val cfg = DifficultyCurve.configFor(levelId)
             val tubes = LevelGenerator.generate(cfg)
 

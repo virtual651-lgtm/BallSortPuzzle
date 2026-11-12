@@ -8,7 +8,7 @@ import com.example.ballsort.domain.model.LevelConfig
 
 object DifficultyCurve {
 
-    const val TOTAL_CURATED_LEVELS = 120
+    const val TOTAL_CURATED_LEVELS = 200
 
     fun configFor(levelId: Int): LevelConfig {
         val safeId = levelId.coerceAtLeast(1)
@@ -36,11 +36,17 @@ object DifficultyCurve {
         val baseColors = when {
             safeId <= 50 -> 8 + (safeId - 31) / 10                // 8..9
             safeId <= 80 -> 10 + (safeId - 51) / 15               // 10..11
-            else -> 12
+            safeId <= 140 -> 12
+            safeId <= 170 -> 13
+            else -> 14
         }
         val emptyTubes = if (isChallengeLevel) 1 else 2
         val colors = if (isChallengeLevel) {
-            if (safeId < 60) 5 else 6
+            when {
+                safeId < 60 -> 5
+                safeId < 120 -> 6
+                else -> 7
+            }
         } else {
             baseColors
         }
