@@ -93,14 +93,17 @@
     <string name="lang_en">English</string>
 
     <string name="howto_title">How to Play</string>
-    <string name="howto_rule_1_title">1. Pick and Move</string>
-    <string name="howto_rule_1_desc">Tap a tube to pick up the top ball, then tap another tube to place it.</string>
-    <string name="howto_rule_2_title">2. Match Colors</string>
-    <string name="howto_rule_2_desc">You can only place a ball into an empty tube or onto a matching top color with space left.</string>
-    <string name="howto_rule_3_title">3. Goal</string>
-    <string name="howto_rule_3_desc">You win when every filled tube holds a single color and remaining tubes are empty.</string>
-    <string name="howto_rule_4_title">4. Helpers</string>
-    <string name="howto_rule_4_desc">Use Undo, Restart, Hint, or 1 Extra Tube per level if you get stuck.</string>
+    <string name="walkthrough_skip">Skip</string>
+    <string name="walkthrough_next">Next</string>
+    <string name="walkthrough_start">Play Now!</string>
+    <string name="walkthrough_slide_1_title">Sort by Color</string>
+    <string name="walkthrough_slide_1_desc">Group all balls of the same color into their own tube to solve the puzzle.</string>
+    <string name="walkthrough_slide_2_title">Color Matching Rule</string>
+    <string name="walkthrough_slide_2_desc">You can only place a ball on top of the same color, or into an empty tube.</string>
+    <string name="walkthrough_slide_3_title">Helpful Boosters</string>
+    <string name="walkthrough_slide_3_desc">Stuck? Use Undo, Hints, or add an Extra Tube to create more space.</string>
+    <string name="walkthrough_slide_4_title">Live Duels &amp; Challenges</string>
+    <string name="walkthrough_slide_4_desc">Race against AI or challenge friends on the same Wi-Fi using quick QR pairing!</string>
 
     <string name="a11y_tube_empty">Tube %1$d: empty</string>
     <string name="a11y_tube_contents">Tube %1$d: bottom to top %2$s</string>

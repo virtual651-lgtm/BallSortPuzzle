@@ -93,14 +93,17 @@
     <string name="lang_en">English</string>
 
     <string name="howto_title">Nasıl Oynanır?</string>
-    <string name="howto_rule_1_title">1. Top Seç ve Taşı</string>
-    <string name="howto_rule_1_desc">Bir tüpe dokunarak en üstteki topu seç, ardından hedef tüpe dokunarak taşı.</string>
-    <string name="howto_rule_2_title">2. Renk Eşleşmesi</string>
-    <string name="howto_rule_2_desc">Topu yalnızca boş bir tüpe veya en üstünde aynı renk top bulunan tüpe koyabilirsin (tüpte yer varsa).</string>
-    <string name="howto_rule_3_title">3. Kazanma Koşulu</string>
-    <string name="howto_rule_3_desc">Her dolu tüp tek bir renkten oluştuğunda ve kalan tüpler boş olduğunda seviyeyi geçersin.</string>
-    <string name="howto_rule_4_title">4. Yardımcılar</string>
-    <string name="howto_rule_4_desc">Takılırsan Geri Al, Yeniden Başlat, İpucu veya seviye başına 1 kez Ekstra Tüp kullanabilirsin.</string>
+    <string name="walkthrough_skip">Geç</string>
+    <string name="walkthrough_next">İleri</string>
+    <string name="walkthrough_start">Hemen Oyna!</string>
+    <string name="walkthrough_slide_1_title">Tüplere Renk Ver</string>
+    <string name="walkthrough_slide_1_desc">Aynı renkteki topları aynı tüpte bir araya getirerek tüpleri tamamla.</string>
+    <string name="walkthrough_slide_2_title">Renk Kuralı</string>
+    <string name="walkthrough_slide_2_desc">Bir topu yalnızca boş bir tüpe veya en üstünde aynı renk olan tüpe taşıyabilirsin.</string>
+    <string name="walkthrough_slide_3_title">Yardımcı Araçlar</string>
+    <string name="walkthrough_slide_3_desc">Zorlandığında Geri Al, İpucu veya oyunu rahatlatmak için Ekstra Tüp kullanabilirsin.</string>
+    <string name="walkthrough_slide_4_title">Canlı Düello &amp; Meydan Okuma</string>
+    <string name="walkthrough_slide_4_desc">İster botla yarış, ister aynı Wi-Fi ağındaki arkadaşınla QR kod okutarak canlı düello yap!</string>
 
     <string name="a11y_tube_empty">Tüp %1$d: boş</string>
     <string name="a11y_tube_contents">Tüp %1$d: alttan üste %2$s</string>
