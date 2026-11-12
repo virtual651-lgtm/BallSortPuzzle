@@ -154,5 +154,10 @@
     <string name="ach_no_hint_5_desc">İpucu kullanmadan 5 bölüm tamamla</string>
     <string name="ach_stars_30_title">Yıldız Avcısı</string>
     <string name="ach_stars_30_desc">Toplam 30 yıldız topla</string>
+    <string name="settings_feedback">Geri Bildirim Gönder</string>
+    <string name="settings_feedback_desc">attemption@activist.com adresine öneri ve hata bildirin</string>
+    <string name="settings_feedback_subject">Renk Tüpleri Geri Bildirim (v%1$s)</string>
+    <string name="settings_app_version">Sürüm %1$s (%2$d)</string>
+    <string name="menu_version_label">v%1$s</string>
 </resources>
 

@@ -154,5 +154,10 @@
     <string name="ach_no_hint_5_desc">Complete 5 levels without hints</string>
     <string name="ach_stars_30_title">Star Hunter</string>
     <string name="ach_stars_30_desc">Collect 30 total stars</string>
+    <string name="settings_feedback">Send Feedback</string>
+    <string name="settings_feedback_desc">Send suggestions or issues to attemption@activist.com</string>
+    <string name="settings_feedback_subject">Renk Tupleri Feedback (v%1$s)</string>
+    <string name="settings_app_version">Version %1$s (%2$d)</string>
+    <string name="menu_version_label">v%1$s</string>
 </resources>
 

@@ -409,6 +409,15 @@ fun MenuScreen(
                     }
                 }
             }
+
+            Spacer(modifier = Modifier.height(16.dp))
+            Text(
+                text = stringResource(R.string.menu_version_label, com.example.ballsort.BuildConfig.VERSION_NAME),
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth(),
+            )
         }
         }
     }
