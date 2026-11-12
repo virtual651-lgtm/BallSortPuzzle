@@ -5,6 +5,7 @@
 package com.example.ballsort.ui.components
 
 import android.animation.ValueAnimator
+import android.os.Build
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
@@ -49,7 +50,11 @@ fun FlyingBallOverlay(
     val targetExit = topExitPoints[transfer.to]
 
     LaunchedEffect(transfer.id) {
-        val animatorsEnabled = runCatching { ValueAnimator.areAnimatorsEnabled() }.getOrDefault(true)
+        val animatorsEnabled = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            runCatching { ValueAnimator.areAnimatorsEnabled() }.getOrDefault(true)
+        } else {
+            true
+        }
         if (!animatorsEnabled || startPoint == null || endPoint == null || targetExit == null) {
             onFinished()
             return@LaunchedEffect

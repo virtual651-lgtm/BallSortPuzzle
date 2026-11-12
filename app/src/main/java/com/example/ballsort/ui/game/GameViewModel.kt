@@ -155,24 +155,25 @@ class GameViewModel @Inject constructor(
             history.clear()
             pendingEndStatus = null
 
-            if (canResume && saved != null) {
-                history.addAll(saved.history.map { Move(it.from, it.to, it.count) })
-                hintsUsed = saved.hintsUsed
-                extraTubeUsed = saved.extraTubeUsed
+            if (canResume) {
+                val nonNullSaved = saved ?: return@launch
+                history.addAll(nonNullSaved.history.map { Move(it.from, it.to, it.count) })
+                hintsUsed = nonNullSaved.hintsUsed
+                extraTubeUsed = nonNullSaved.extraTubeUsed
                 val maxMoves = currentConfig.maxMoves
-                val moveLimitReached = maxMoves != null && saved.moves >= maxMoves
+                val moveLimitReached = maxMoves != null && nonNullSaved.moves >= maxMoves
                 val resumedStatus = when {
-                    GameLogic.isSolved(saved.tubes, currentConfig.capacity) -> GameStatus.Won
-                    moveLimitReached || GameLogic.isStuck(saved.tubes, currentConfig.capacity) -> GameStatus.Stuck
+                    GameLogic.isSolved(nonNullSaved.tubes, currentConfig.capacity) -> GameStatus.Won
+                    moveLimitReached || GameLogic.isStuck(nonNullSaved.tubes, currentConfig.capacity) -> GameStatus.Stuck
                     else -> GameStatus.Playing
                 }
                 _uiState.value = GameUiState(
                     levelId = levelId,
                     isDaily = isDaily,
                     capacity = currentConfig.capacity,
-                    tubes = saved.tubes,
+                    tubes = nonNullSaved.tubes,
                     selectedTube = null,
-                    moves = saved.moves,
+                    moves = nonNullSaved.moves,
                     maxMoves = currentConfig.maxMoves,
                     elapsedMs = saved.elapsedMs,
                     canUndo = history.isNotEmpty(),
