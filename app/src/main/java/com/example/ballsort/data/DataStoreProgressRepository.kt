@@ -69,11 +69,34 @@ class DataStoreProgressRepository @Inject constructor(
     override suspend fun saveDailyCompleted(epochDay: Long) {
         dataStore.edit { prefs ->
             val current = decodeSave(prefs[saveKey])
+            val alreadyCompletedToday = current.lastCompletedDailyEpochDay == epochDay
+            val newStreak = when {
+                alreadyCompletedToday -> current.dailyStreak
+                current.lastCompletedDailyEpochDay == epochDay - 1L -> current.dailyStreak + 1
+                else -> 1
+            }
             val updated = current.copy(
                 lastCompletedDailyEpochDay = epochDay,
+                dailyStreak = newStreak,
+                bestDailyStreak = maxOf(current.bestDailyStreak, newStreak),
+                totalDailyCompleted = if (alreadyCompletedToday) current.totalDailyCompleted else current.totalDailyCompleted + 1,
                 inProgress = null,
             )
             prefs[saveKey] = json.encodeToString(updated)
+        }
+    }
+
+    override suspend fun recordDuelWin() {
+        dataStore.edit { prefs ->
+            val current = decodeSave(prefs[saveKey])
+            prefs[saveKey] = json.encodeToString(current.copy(duelWins = current.duelWins + 1))
+        }
+    }
+
+    override suspend fun recordNoHintWin() {
+        dataStore.edit { prefs ->
+            val current = decodeSave(prefs[saveKey])
+            prefs[saveKey] = json.encodeToString(current.copy(noHintWins = current.noHintWins + 1))
         }
     }
 

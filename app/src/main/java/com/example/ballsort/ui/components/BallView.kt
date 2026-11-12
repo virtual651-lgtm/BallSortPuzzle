@@ -17,6 +17,7 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.unit.Dp
+import com.example.ballsort.ui.theme.BallSkin
 import com.example.ballsort.ui.theme.BallSymbol
 import com.example.ballsort.ui.theme.ballEntryFor
 import kotlin.math.cos
@@ -28,6 +29,7 @@ fun BallView(
     ballSize: Dp,
     colorBlind: Boolean,
     modifier: Modifier = Modifier,
+    ballSkin: String = BallSkin.CLASSIC.id,
 ) {
     val entry = ballEntryFor(colorId)
     Canvas(modifier = modifier.size(ballSize)) {
@@ -37,6 +39,7 @@ fun BallView(
             colorBlind = colorBlind,
             center = Offset(size.width / 2f, size.height / 2f),
             radius = size.minDimension / 2f,
+            ballSkin = ballSkin,
         )
     }
 }
@@ -47,36 +50,104 @@ fun DrawScope.drawBall(
     colorBlind: Boolean,
     center: Offset,
     radius: Float,
+    ballSkin: String = BallSkin.CLASSIC.id,
 ) {
-    val lighter = Color(
-        red = (color.red + (1f - color.red) * 0.45f).coerceIn(0f, 1f),
-        green = (color.green + (1f - color.green) * 0.45f).coerceIn(0f, 1f),
-        blue = (color.blue + (1f - color.blue) * 0.45f).coerceIn(0f, 1f),
-        alpha = 1f,
-    )
-    val darker = Color(
-        red = (color.red * 0.65f).coerceIn(0f, 1f),
-        green = (color.green * 0.65f).coerceIn(0f, 1f),
-        blue = (color.blue * 0.65f).coerceIn(0f, 1f),
-        alpha = 1f,
-    )
-
-    drawCircle(
-        brush = Brush.radialGradient(
-            colors = listOf(lighter, color, darker),
-            center = Offset(center.x - radius * 0.28f, center.y - radius * 0.28f),
-            radius = radius * 1.35f,
-        ),
-        radius = radius,
-        center = center,
-    )
-
-    // Küçük parlama noktası
-    drawCircle(
-        color = Color.White.copy(alpha = 0.42f),
-        radius = radius * 0.22f,
-        center = Offset(center.x - radius * 0.34f, center.y - radius * 0.34f),
-    )
+    when (BallSkin.fromId(ballSkin)) {
+        BallSkin.CLASSIC -> {
+            val lighter = Color(
+                red = (color.red + (1f - color.red) * 0.45f).coerceIn(0f, 1f),
+                green = (color.green + (1f - color.green) * 0.45f).coerceIn(0f, 1f),
+                blue = (color.blue + (1f - color.blue) * 0.45f).coerceIn(0f, 1f),
+                alpha = 1f,
+            )
+            val darker = Color(
+                red = (color.red * 0.65f).coerceIn(0f, 1f),
+                green = (color.green * 0.65f).coerceIn(0f, 1f),
+                blue = (color.blue * 0.65f).coerceIn(0f, 1f),
+                alpha = 1f,
+            )
+            drawCircle(
+                brush = Brush.radialGradient(
+                    colors = listOf(lighter, color, darker),
+                    center = Offset(center.x - radius * 0.28f, center.y - radius * 0.28f),
+                    radius = radius * 1.35f,
+                ),
+                radius = radius,
+                center = center,
+            )
+            drawCircle(
+                color = Color.White.copy(alpha = 0.42f),
+                radius = radius * 0.22f,
+                center = Offset(center.x - radius * 0.34f, center.y - radius * 0.34f),
+            )
+        }
+        BallSkin.NEON -> {
+            drawCircle(
+                color = Color(0xFF10141E),
+                radius = radius,
+                center = center,
+            )
+            drawCircle(
+                brush = Brush.radialGradient(
+                    colors = listOf(color.copy(alpha = 0.35f), Color.Transparent),
+                    center = center,
+                    radius = radius,
+                ),
+                radius = radius,
+                center = center,
+            )
+            drawCircle(
+                color = color,
+                radius = radius * 0.84f,
+                center = center,
+                style = Stroke(width = (radius * 0.24f).coerceAtLeast(3f)),
+            )
+            drawCircle(
+                color = Color.White.copy(alpha = 0.7f),
+                radius = radius * 0.16f,
+                center = Offset(center.x - radius * 0.28f, center.y - radius * 0.28f),
+            )
+        }
+        BallSkin.GEM -> {
+            val darker = Color(
+                red = (color.red * 0.55f).coerceIn(0f, 1f),
+                green = (color.green * 0.55f).coerceIn(0f, 1f),
+                blue = (color.blue * 0.55f).coerceIn(0f, 1f),
+                alpha = 1f,
+            )
+            drawCircle(
+                brush = Brush.linearGradient(
+                    colors = listOf(color, darker),
+                    start = Offset(center.x - radius, center.y - radius),
+                    end = Offset(center.x + radius, center.y + radius),
+                ),
+                radius = radius,
+                center = center,
+            )
+            val facet = Path().apply {
+                moveTo(center.x, center.y - radius * 0.68f)
+                lineTo(center.x + radius * 0.62f, center.y)
+                lineTo(center.x, center.y + radius * 0.68f)
+                lineTo(center.x - radius * 0.62f, center.y)
+                close()
+            }
+            drawPath(facet, color = Color.White.copy(alpha = 0.28f))
+            drawPath(facet, color = Color.White.copy(alpha = 0.5f), style = Stroke(width = 1.5f))
+        }
+        BallSkin.MINIMAL -> {
+            drawCircle(
+                color = color,
+                radius = radius,
+                center = center,
+            )
+            drawCircle(
+                color = Color.White.copy(alpha = 0.25f),
+                radius = radius * 0.88f,
+                center = center,
+                style = Stroke(width = (radius * 0.12f).coerceAtLeast(1.5f)),
+            )
+        }
+    }
 
     if (colorBlind) {
         drawSymbol(

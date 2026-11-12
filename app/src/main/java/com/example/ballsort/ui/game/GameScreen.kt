@@ -53,6 +53,7 @@ import com.example.ballsort.platform.Haptics
 import com.example.ballsort.platform.SoundPlayer
 import com.example.ballsort.ui.components.ConfettiOverlay
 import com.example.ballsort.ui.components.FlyingBallOverlay
+import com.example.ballsort.ui.components.GameBackdrop
 import com.example.ballsort.ui.components.GameBottomBar
 import com.example.ballsort.ui.components.GameTopBar
 import com.example.ballsort.ui.components.StuckDialog
@@ -188,15 +189,25 @@ fun GameScreenContent(
     val topExitPoints = remember { mutableStateMapOf<Int, Offset>() }
     var boardRootTopLeft by remember { mutableStateOf(Offset.Zero) }
 
-    Scaffold(
-        modifier = modifier
-            .fillMaxSize()
-            .windowInsetsPadding(WindowInsets.safeDrawing),
+    GameBackdrop(modifier = modifier.fillMaxSize()) {
+        Scaffold(
+            containerColor = androidx.compose.ui.graphics.Color.Transparent,
+            modifier = Modifier
+                .fillMaxSize()
+                .windowInsetsPadding(WindowInsets.safeDrawing),
         topBar = {
             GameTopBar(
                 levelId = uiState.levelId,
                 isDaily = uiState.isDaily,
+                isDuel = uiState.isDuel,
+                botMoves = uiState.botMoves,
+                botTotalMoves = uiState.botTotalMoves,
+                isLanDuel = uiState.isLanDuel,
+                lanOpponentCompleted = uiState.lanOpponentCompleted,
+                lanOpponentTotal = uiState.lanOpponentTotal,
+                lanOpponentMoves = uiState.lanOpponentMoves,
                 moves = uiState.moves,
+                maxMoves = uiState.maxMoves,
                 elapsedMs = uiState.elapsedMs,
                 onBackClick = onBackClick,
             )
@@ -238,6 +249,8 @@ fun GameScreenContent(
                     }
                     val maxPerRow = (tubeCount + rowCount - 1) / rowCount
                     val rows = uiState.tubes.withIndex().chunked(maxPerRow)
+                    val tubeHorizontalGap = if (maxPerRow >= 5) 6.dp else 10.dp
+                    val rowVerticalGap = if (rowCount >= 3) 10.dp else 16.dp
 
                     val (tubeWidth, ballSize) = computeDimensions(
                         availableWidth = maxWidth,
@@ -245,16 +258,18 @@ fun GameScreenContent(
                         maxPerRow = maxPerRow,
                         rowCount = rows.size,
                         capacity = uiState.capacity,
+                        tubeHorizontalGap = tubeHorizontalGap,
+                        rowVerticalGap = rowVerticalGap,
                     )
 
                     Column(
-                        verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterVertically),
+                        verticalArrangement = Arrangement.spacedBy(rowVerticalGap, Alignment.CenterVertically),
                         horizontalAlignment = Alignment.CenterHorizontally,
                         modifier = Modifier.fillMaxSize(),
                     ) {
                         rows.forEach { rowItems ->
                             Row(
-                                horizontalArrangement = Arrangement.spacedBy(10.dp, Alignment.CenterHorizontally),
+                                horizontalArrangement = Arrangement.spacedBy(tubeHorizontalGap, Alignment.CenterHorizontally),
                                 verticalAlignment = Alignment.CenterVertically,
                                 modifier = Modifier.fillMaxWidth(),
                             ) {
@@ -279,6 +294,9 @@ fun GameScreenContent(
                                         shakeToken = if (uiState.invalidShakeTube == idx) uiState.invalidShakeToken else 0L,
                                         hiddenSlots = hiddenSlots,
                                         colorBlind = uiState.colorBlind,
+                                        ballSkin = uiState.ballSkin,
+                                        tubeSkin = uiState.tubeSkin,
+                                        isLocked = uiState.lockedTubeIndex == idx,
                                         onSlotMeasured = { slot, center ->
                                             slotPoints[idx to slot] = center
                                         },
@@ -298,6 +316,7 @@ fun GameScreenContent(
                         transfer = uiState.activeTransfer,
                         ballSize = ballSize,
                         colorBlind = uiState.colorBlind,
+                        ballSkin = uiState.ballSkin,
                         rootTopLeft = boardRootTopLeft,
                         topExitPoints = topExitPoints,
                         slotPoints = slotPoints,
@@ -308,6 +327,7 @@ fun GameScreenContent(
 
             ConfettiOverlay(visible = uiState.status == GameStatus.Won)
         }
+        }
     }
 
     when (uiState.status) {
@@ -315,6 +335,7 @@ fun GameScreenContent(
             WinDialog(
                 levelId = uiState.levelId,
                 isDaily = uiState.isDaily,
+                isDuel = uiState.isDuel || uiState.isLanDuel,
                 stars = uiState.stars,
                 moves = uiState.moves,
                 elapsedMs = uiState.elapsedMs,
@@ -325,11 +346,13 @@ fun GameScreenContent(
         }
         GameStatus.Stuck -> {
             StuckDialog(
-                canUndo = uiState.canUndo,
+                canUndo = uiState.canUndo && !uiState.duelBotWon,
                 extraTubeAvailable = uiState.extraTubeAvailable,
                 onUndo = { onEvent(GameEvent.Undo) },
                 onRestart = { onEvent(GameEvent.Restart) },
                 onAddTube = { onEvent(GameEvent.AddTube) },
+                isMoveLimitReached = uiState.maxMoves != null && uiState.moves >= uiState.maxMoves,
+                isDuelBotWon = uiState.duelBotWon,
             )
         }
         GameStatus.Playing -> Unit
@@ -342,17 +365,22 @@ private fun computeDimensions(
     maxPerRow: Int,
     rowCount: Int,
     capacity: Int,
+    tubeHorizontalGap: Dp,
+    rowVerticalGap: Dp,
 ): Pair<Dp, Dp> {
-    val horizontalSpacing = 10.dp * (maxPerRow - 1)
-    val maxTubeW = ((availableWidth - horizontalSpacing) / maxPerRow).coerceIn(48.dp, 68.dp)
+    // TubeView dışındaki horizontal padding (2.dp * 2) her tüpün toplam genişliğine eklenir
+    val tubeOuterHorizontalPadding = 4.dp
+    val totalHorizontalOverhead = tubeHorizontalGap * (maxPerRow - 1) + tubeOuterHorizontalPadding * maxPerRow
+    val maxTubeW = ((availableWidth - totalHorizontalOverhead) / maxPerRow).coerceIn(32.dp, 68.dp)
 
-    val verticalGaps = 16.dp * (rowCount - 1) + (34.dp * rowCount)
-    val maxRowHeight = (availableHeight - verticalGaps) / rowCount
-    val maxBallByHeight = ((maxRowHeight - 16.dp) / (capacity + 0.6f)).coerceIn(24.dp, 46.dp)
-    val maxBallByWidth = (maxTubeW - 14.dp).coerceIn(24.dp, 46.dp)
+    // TubeView dikey sabitleri: üst çıkış (22.dp) + gövde dolgusu (8.dp) + slot aralıkları (4.dp * (capacity + 1))
+    val perTubeVerticalOverhead = 22.dp + 8.dp + 4.dp * (capacity + 1)
+    val totalVerticalOverhead = rowVerticalGap * (rowCount - 1) + perTubeVerticalOverhead * rowCount + 4.dp
+    val maxBallByHeight = ((availableHeight - totalVerticalOverhead) / (rowCount * capacity)).coerceIn(16.dp, 46.dp)
+    val maxBallByWidth = (maxTubeW - 14.dp).coerceIn(16.dp, 46.dp)
 
     val ballSize = minOf(maxBallByHeight, maxBallByWidth)
-    val tubeWidth = maxOf(48.dp, ballSize + 14.dp)
+    val tubeWidth = (ballSize + 14.dp).coerceAtMost(maxTubeW)
     return tubeWidth to ballSize
 }
 

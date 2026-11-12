@@ -23,6 +23,8 @@ import com.example.ballsort.domain.model.GameStatus
 import com.example.ballsort.domain.model.LevelConfig
 import com.example.ballsort.domain.model.Move
 import com.example.ballsort.domain.model.Tube
+import com.example.ballsort.platform.LanDuelState
+import com.example.ballsort.platform.LanDuelTransport
 import com.example.ballsort.util.currentEpochDay
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
@@ -45,6 +47,7 @@ class GameViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val progressRepository: ProgressRepository,
     private val settingsRepository: SettingsRepository,
+    private val lanDuelTransport: LanDuelTransport,
     @DefaultDispatcher private val defaultDispatcher: CoroutineDispatcher,
 ) : ViewModel() {
 
@@ -63,41 +66,88 @@ class GameViewModel @Inject constructor(
     private var extraTubeUsed: Boolean = false
     private var isScreenActive: Boolean = true
     private var timerJob: Job? = null
+    private var botJob: Job? = null
     private var pendingEndStatus: GameStatus? = null
     private var transferSeq: Long = 0L
     private var shakeSeq: Long = 0L
 
     init {
         observeSettings()
+        observeLanDuel()
         loadLevel(initialLevelId, forceFresh = false)
+    }
+
+    private fun observeLanDuel() {
+        viewModelScope.launch {
+            lanDuelTransport.state.collect { lan ->
+                if (!_uiState.value.isLanDuel) return@collect
+                if (lan is LanDuelState.InMatch) {
+                    if (lan.opponentWon && _uiState.value.status == GameStatus.Playing) {
+                        timerJob?.cancel()
+                        _uiState.update {
+                            it.copy(
+                                lanOpponentCompleted = lan.opponentCompleted,
+                                lanOpponentTotal = lan.opponentTotal,
+                                lanOpponentMoves = lan.opponentMoves,
+                                duelBotWon = true,
+                                status = GameStatus.Stuck,
+                            )
+                        }
+                    } else {
+                        _uiState.update {
+                            it.copy(
+                                lanOpponentCompleted = lan.opponentCompleted,
+                                lanOpponentTotal = lan.opponentTotal,
+                                lanOpponentMoves = lan.opponentMoves,
+                            )
+                        }
+                    }
+                }
+            }
+        }
     }
 
     private fun observeSettings() {
         viewModelScope.launch {
             settingsRepository.settings.collect { settings ->
                 currentSettings = settings
-                _uiState.update { it.copy(colorBlind = settings.colorBlind) }
+                _uiState.update {
+                    it.copy(
+                        colorBlind = settings.colorBlind,
+                        ballSkin = settings.ballSkin,
+                        tubeSkin = settings.tubeSkin,
+                    )
+                }
             }
         }
     }
 
-    private fun configForRoute(levelId: Int): LevelConfig =
-        if (levelId == -1) DifficultyCurve.dailyConfig(currentEpochDay())
-        else DifficultyCurve.configFor(levelId)
+    private fun configForRoute(levelId: Int): LevelConfig = when (levelId) {
+        -1 -> DifficultyCurve.dailyConfig(currentEpochDay())
+        -2 -> DifficultyCurve.duelConfig()
+        -3 -> DifficultyCurve.duelConfig((lanDuelTransport.state.value as? LanDuelState.InMatch)?.seed ?: System.currentTimeMillis())
+        else -> DifficultyCurve.configFor(levelId)
+    }
 
     private fun loadLevel(levelId: Int, forceFresh: Boolean) {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true) }
+            botJob?.cancel()
             val isDaily = levelId == -1
+            val isDuel = levelId == -2
+            val isLanDuel = levelId == -3
             val epochDay = if (isDaily) currentEpochDay() else null
-            currentConfig = if (isDaily) {
-                DifficultyCurve.dailyConfig(epochDay!!)
-            } else {
-                DifficultyCurve.configFor(levelId)
+            currentConfig = when {
+                isDaily -> DifficultyCurve.dailyConfig(epochDay!!)
+                isDuel -> DifficultyCurve.duelConfig()
+                isLanDuel -> DifficultyCurve.duelConfig(
+                    (lanDuelTransport.state.value as? LanDuelState.InMatch)?.seed ?: System.currentTimeMillis()
+                )
+                else -> DifficultyCurve.configFor(levelId)
             }
 
-            val saved = progressRepository.saveData.first().inProgress
-            val canResume = !forceFresh && saved != null && (
+            val saved = if (isDuel || isLanDuel) null else progressRepository.saveData.first().inProgress
+            val canResume = !forceFresh && !isDuel && !isLanDuel && saved != null && (
                 (isDaily && saved.dailyEpochDay == epochDay) ||
                     (!isDaily && saved.levelId == levelId && saved.dailyEpochDay == null)
                 )
@@ -109,9 +159,11 @@ class GameViewModel @Inject constructor(
                 history.addAll(saved.history.map { Move(it.from, it.to, it.count) })
                 hintsUsed = saved.hintsUsed
                 extraTubeUsed = saved.extraTubeUsed
+                val maxMoves = currentConfig.maxMoves
+                val moveLimitReached = maxMoves != null && saved.moves >= maxMoves
                 val resumedStatus = when {
                     GameLogic.isSolved(saved.tubes, currentConfig.capacity) -> GameStatus.Won
-                    GameLogic.isStuck(saved.tubes, currentConfig.capacity) -> GameStatus.Stuck
+                    moveLimitReached || GameLogic.isStuck(saved.tubes, currentConfig.capacity) -> GameStatus.Stuck
                     else -> GameStatus.Playing
                 }
                 _uiState.value = GameUiState(
@@ -121,36 +173,65 @@ class GameViewModel @Inject constructor(
                     tubes = saved.tubes,
                     selectedTube = null,
                     moves = saved.moves,
+                    maxMoves = currentConfig.maxMoves,
                     elapsedMs = saved.elapsedMs,
                     canUndo = history.isNotEmpty(),
                     extraTubeAvailable = !extraTubeUsed,
                     status = resumedStatus,
                     isLoading = false,
                     colorBlind = currentSettings.colorBlind,
+                    ballSkin = currentSettings.ballSkin,
+                    tubeSkin = currentSettings.tubeSkin,
+                    lockedTubeIndex = computeLockedTube(levelId, saved.tubes, currentConfig.capacity),
                 )
             } else {
                 val tubes = withContext(defaultDispatcher) {
                     LevelGenerator.generate(currentConfig)
+                }
+                val botTotal = if (isDuel) {
+                    Solver.solve(
+                        tubes = tubes,
+                        capacity = currentConfig.capacity,
+                        multiMove = true,
+                        timeoutMs = 1_500L,
+                        dispatcher = defaultDispatcher,
+                    )?.size ?: StarCalculator.fallbackOptimalMoves(
+                        colorCount = currentConfig.colorCount,
+                        capacity = currentConfig.capacity,
+                    )
+                } else {
+                    0
                 }
                 hintsUsed = 0
                 extraTubeUsed = false
                 _uiState.value = GameUiState(
                     levelId = levelId,
                     isDaily = isDaily,
+                    isDuel = isDuel,
+                    isLanDuel = isLanDuel,
+                    botMoves = 0,
+                    botTotalMoves = botTotal,
+                    lanOpponentTotal = currentConfig.colorCount,
+                    duelBotWon = false,
                     capacity = currentConfig.capacity,
                     tubes = tubes,
                     selectedTube = null,
                     moves = 0,
+                    maxMoves = currentConfig.maxMoves,
                     elapsedMs = 0L,
                     canUndo = false,
                     extraTubeAvailable = true,
                     status = GameStatus.Playing,
                     isLoading = false,
                     colorBlind = currentSettings.colorBlind,
+                    ballSkin = currentSettings.ballSkin,
+                    tubeSkin = currentSettings.tubeSkin,
+                    lockedTubeIndex = computeLockedTube(levelId, tubes, currentConfig.capacity),
                 )
                 persistInProgress()
             }
             startTimerIfNeeded()
+            startBotDuelIfNeeded()
         }
     }
 
@@ -166,10 +247,12 @@ class GameViewModel @Inject constructor(
             GameEvent.ScreenResumed -> {
                 isScreenActive = true
                 startTimerIfNeeded()
+                startBotDuelIfNeeded()
             }
             GameEvent.ScreenPaused -> {
                 isScreenActive = false
                 timerJob?.cancel()
+                botJob?.cancel()
                 viewModelScope.launch { persistInProgress() }
             }
         }
@@ -179,6 +262,19 @@ class GameViewModel @Inject constructor(
         val state = _uiState.value
         if (state.isLoading || state.isAnimating || state.status != GameStatus.Playing) return
         if (index !in state.tubes.indices) return
+
+        if (index == state.lockedTubeIndex) {
+            shakeSeq++
+            _uiState.update {
+                it.copy(
+                    selectedTube = null,
+                    invalidShakeTube = index,
+                    invalidShakeToken = shakeSeq,
+                )
+            }
+            _effects.tryEmit(GameEffect.InvalidMove)
+            return
+        }
 
         val selected = state.selectedTube
         if (selected == null) {
@@ -223,7 +319,8 @@ class GameViewModel @Inject constructor(
         val nextMoves = state.moves + 1
         val completedTube = GameLogic.isTubeCompleted(nextTubes[index], state.capacity)
         val won = GameLogic.isSolved(nextTubes, state.capacity)
-        val stuck = !won && GameLogic.isStuck(nextTubes, state.capacity)
+        val moveLimitReached = state.maxMoves != null && nextMoves >= state.maxMoves
+        val stuck = !won && (moveLimitReached || GameLogic.isStuck(nextTubes, state.capacity))
 
         pendingEndStatus = when {
             won -> GameStatus.Won
@@ -240,6 +337,7 @@ class GameViewModel @Inject constructor(
                 canUndo = true,
                 hintMove = null,
                 isAnimating = true,
+                lockedTubeIndex = computeLockedTube(state.levelId, nextTubes, state.capacity),
                 activeTransfer = TransferAnimation(
                     id = transferSeq,
                     from = move.from,
@@ -257,6 +355,16 @@ class GameViewModel @Inject constructor(
             _effects.tryEmit(GameEffect.BallPlaced)
         }
 
+        if (state.isLanDuel) {
+            val completedCount = nextTubes.count { GameLogic.isTubeCompleted(it, state.capacity) }
+            lanDuelTransport.sendProgress(
+                completedTubes = completedCount,
+                totalColors = currentConfig.colorCount,
+                moves = nextMoves,
+                won = won,
+            )
+        }
+
         viewModelScope.launch {
             persistInProgress()
         }
@@ -271,6 +379,7 @@ class GameViewModel @Inject constructor(
 
         if (endStatus == GameStatus.Won) {
             timerJob?.cancel()
+            botJob?.cancel()
             _uiState.update {
                 it.copy(
                     isAnimating = false,
@@ -323,6 +432,13 @@ class GameViewModel @Inject constructor(
             )
             _uiState.update { it.copy(stars = stars) }
 
+            if (_uiState.value.isDuel || _uiState.value.isLanDuel) {
+                progressRepository.recordDuelWin()
+                return@launch
+            }
+            if (hintsUsed == 0) {
+                progressRepository.recordNoHintWin()
+            }
             if (_uiState.value.isDaily) {
                 progressRepository.saveDailyCompleted(currentEpochDay())
             } else {
@@ -352,6 +468,7 @@ class GameViewModel @Inject constructor(
                 canUndo = history.isNotEmpty(),
                 status = GameStatus.Playing,
                 hintMove = null,
+                lockedTubeIndex = computeLockedTube(state.levelId, restored, state.capacity),
             )
         }
         startTimerIfNeeded()
@@ -378,6 +495,7 @@ class GameViewModel @Inject constructor(
                 selectedTube = null,
                 status = GameStatus.Playing,
                 hintMove = null,
+                lockedTubeIndex = computeLockedTube(state.levelId, updatedTubes, state.capacity),
             )
         }
         startTimerIfNeeded()
@@ -413,8 +531,41 @@ class GameViewModel @Inject constructor(
 
     private fun handleNextLevel() {
         val state = _uiState.value
-        val nextId = if (state.isDaily) 1 else state.levelId + 1
+        val nextId = when {
+            state.isDuel -> -2
+            state.isDaily -> 1
+            else -> state.levelId + 1
+        }
         loadLevel(nextId, forceFresh = true)
+    }
+
+    private fun startBotDuelIfNeeded() {
+        botJob?.cancel()
+        val state = _uiState.value
+        if (!isScreenActive || !state.isDuel || state.status != GameStatus.Playing || state.isLoading || state.botTotalMoves <= 0) {
+            return
+        }
+        botJob = viewModelScope.launch {
+            while (true) {
+                delay(1_150L)
+                val cur = _uiState.value
+                if (!isScreenActive || cur.status != GameStatus.Playing) continue
+                val nextBotMoves = cur.botMoves + 1
+                if (nextBotMoves >= cur.botTotalMoves) {
+                    timerJob?.cancel()
+                    _uiState.update {
+                        it.copy(
+                            botMoves = cur.botTotalMoves,
+                            duelBotWon = true,
+                            status = GameStatus.Stuck,
+                        )
+                    }
+                    break
+                } else {
+                    _uiState.update { it.copy(botMoves = nextBotMoves) }
+                }
+            }
+        }
     }
 
     private fun startTimerIfNeeded() {
@@ -432,9 +583,16 @@ class GameViewModel @Inject constructor(
         }
     }
 
+    private fun computeLockedTube(levelId: Int, tubes: List<Tube>, capacity: Int): Int? {
+        if (levelId < 35 || levelId % 7 != 0) return null
+        val completedCount = tubes.count { GameLogic.isTubeCompleted(it, capacity) }
+        if (completedCount >= 1) return null
+        return tubes.indexOfLast { it.isEmpty() }.takeIf { it >= 0 }
+    }
+
     private suspend fun persistInProgress() {
         val state = _uiState.value
-        if (state.tubes.isEmpty() || state.status == GameStatus.Won) return
+        if (state.isDuel || state.isLanDuel || state.tubes.isEmpty() || state.status == GameStatus.Won) return
         progressRepository.saveInProgress(
             InProgress(
                 levelId = state.levelId,
@@ -451,6 +609,10 @@ class GameViewModel @Inject constructor(
 
     override fun onCleared() {
         timerJob?.cancel()
+        botJob?.cancel()
+        if (_uiState.value.isLanDuel) {
+            lanDuelTransport.close()
+        }
         super.onCleared()
     }
 }

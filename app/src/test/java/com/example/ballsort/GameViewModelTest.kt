@@ -12,6 +12,7 @@ import com.example.ballsort.data.SaveData
 import com.example.ballsort.data.Settings
 import com.example.ballsort.data.SettingsRepository
 import com.example.ballsort.domain.GameLogic
+import com.example.ballsort.platform.NoOpLanDuelTransport
 import com.example.ballsort.ui.game.GameEvent
 import com.example.ballsort.ui.game.GameViewModel
 import kotlinx.coroutines.Dispatchers
@@ -91,6 +92,7 @@ class GameViewModelTest {
             savedStateHandle = SavedStateHandle(mapOf("levelId" to 1)),
             progressRepository = progressRepo,
             settingsRepository = settingsRepo,
+            lanDuelTransport = NoOpLanDuelTransport,
             defaultDispatcher = testDispatcher,
         )
         // Test sırasında sonsuz süre sayacının sanal zamanı döndürmemesi için ekranı duraklat

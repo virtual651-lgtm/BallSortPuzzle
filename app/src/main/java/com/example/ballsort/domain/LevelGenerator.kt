@@ -13,21 +13,49 @@ object LevelGenerator {
     fun generate(config: LevelConfig): List<Tube> {
         var seed = config.seed
         var lastCandidate: List<Tube>? = null
+        var bestSolvable: List<Tube>? = null
+        var bestScore = -1
 
         repeat(30) {
             val tubes = attempt(config, seed)
             lastCandidate = tubes
             val validStart = !GameLogic.isSolved(tubes, config.capacity) &&
                 !GameLogic.isStuck(tubes, config.capacity)
-            if (validStart && Solver.solveSync(tubes, config.capacity, maxVisited = 12_000) != null) {
-                return tubes
+            if (validStart) {
+                val solution = Solver.solveSync(tubes, config.capacity, maxVisited = 20_000)
+                if (solution != null) {
+                    if (config.minSolutionMoves <= 0) {
+                        return tubes
+                    }
+                    val hasUniformFullTube = tubes.any { tube ->
+                        tube.size == config.capacity && tube.distinct().size == 1
+                    }
+                    val frag = fragmentationScore(tubes)
+                    if (!hasUniformFullTube && solution.size >= config.minSolutionMoves) {
+                        return tubes
+                    }
+                    val score = solution.size * 2 + frag
+                    if (score > bestScore) {
+                        bestScore = score
+                        bestSolvable = tubes
+                    }
+                }
             }
             seed++
         }
 
-        // VARSAYIM: 2 boş tüp ile 30 denemede çözülebilir seviye neredeyse her zaman bulunur;
-        // olağanüstü durumda başlangıçta kilitli olmayan son adayı döndürür.
-        return lastCandidate ?: attempt(config, seed)
+        // VARSAYIM: Hedef hamle eşiğine ulaşılamazsa en zorlu çözülebilir tahtayı döndürür.
+        return bestSolvable ?: lastCandidate ?: attempt(config, seed)
+    }
+
+    private fun fragmentationScore(tubes: List<Tube>): Int {
+        var transitions = 0
+        for (tube in tubes) {
+            for (i in 1 until tube.size) {
+                if (tube[i] != tube[i - 1]) transitions++
+            }
+        }
+        return transitions
     }
 
     private fun attempt(c: LevelConfig, seed: Long): List<Tube> {

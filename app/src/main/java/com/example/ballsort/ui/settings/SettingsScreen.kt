@@ -5,6 +5,7 @@
 package com.example.ballsort.ui.settings
 
 import android.os.Build
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -20,6 +21,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
@@ -27,6 +29,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -39,6 +42,9 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.ballsort.R
+import com.example.ballsort.ui.components.TubeView
+import com.example.ballsort.ui.theme.BallSkin
+import com.example.ballsort.ui.theme.TubeSkin
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -47,6 +53,7 @@ fun SettingsScreen(
     viewModel: SettingsViewModel = hiltViewModel(),
 ) {
     val settings by viewModel.settings.collectAsStateWithLifecycle()
+    val totalStars by viewModel.totalStars.collectAsStateWithLifecycle()
 
     Scaffold(
         modifier = Modifier
@@ -150,6 +157,124 @@ fun SettingsScreen(
                     onClick = { viewModel.setLanguage("en") },
                     label = { Text(stringResource(R.string.lang_en)) },
                 )
+            }
+
+            HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp))
+
+            Text(
+                text = stringResource(R.string.settings_skins_stars_hint, totalStars),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+
+            Text(
+                text = stringResource(R.string.settings_ball_skin),
+                style = MaterialTheme.typography.titleMedium,
+            )
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier.horizontalScroll(rememberScrollState()),
+            ) {
+                BallSkin.entries.forEach { skin ->
+                    val unlocked = totalStars >= skin.requiredStars
+                    val name = stringResource(skin.nameRes)
+                    FilterChip(
+                        selected = settings.ballSkin == skin.id,
+                        enabled = unlocked,
+                        onClick = { viewModel.setBallSkin(skin.id) },
+                        leadingIcon = if (!unlocked) {
+                            { Icon(Icons.Default.Lock, contentDescription = null) }
+                        } else null,
+                        label = {
+                            Text(
+                                if (unlocked) name else stringResource(R.string.skin_locked_format, name, skin.requiredStars)
+                            )
+                        },
+                    )
+                }
+            }
+
+            Text(
+                text = stringResource(R.string.settings_tube_skin),
+                style = MaterialTheme.typography.titleMedium,
+            )
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier.horizontalScroll(rememberScrollState()),
+            ) {
+                TubeSkin.entries.forEach { skin ->
+                    val unlocked = totalStars >= skin.requiredStars
+                    val name = stringResource(skin.nameRes)
+                    FilterChip(
+                        selected = settings.tubeSkin == skin.id,
+                        enabled = unlocked,
+                        onClick = { viewModel.setTubeSkin(skin.id) },
+                        leadingIcon = if (!unlocked) {
+                            { Icon(Icons.Default.Lock, contentDescription = null) }
+                        } else null,
+                        label = {
+                            Text(
+                                if (unlocked) name else stringResource(R.string.skin_locked_format, name, skin.requiredStars)
+                            )
+                        },
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(
+                text = stringResource(R.string.settings_skin_preview),
+                style = MaterialTheme.typography.titleMedium,
+            )
+            Surface(
+                tonalElevation = 2.dp,
+                shape = MaterialTheme.shapes.medium,
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterHorizontally),
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 12.dp),
+                ) {
+                    TubeView(
+                        index = 0,
+                        tube = listOf(0, 1, 2),
+                        capacity = 4,
+                        tubeWidth = 48.dp,
+                        ballSize = 30.dp,
+                        isSelected = false,
+                        isHintSource = false,
+                        isHintTarget = false,
+                        shakeToken = 0L,
+                        hiddenSlots = IntRange.EMPTY,
+                        colorBlind = settings.colorBlind,
+                        ballSkin = settings.ballSkin,
+                        tubeSkin = settings.tubeSkin,
+                        onSlotMeasured = { _, _ -> },
+                        onTopExitMeasured = {},
+                        onClick = {},
+                    )
+                    TubeView(
+                        index = 1,
+                        tube = listOf(3, 3, 3, 3),
+                        capacity = 4,
+                        tubeWidth = 48.dp,
+                        ballSize = 30.dp,
+                        isSelected = false,
+                        isHintSource = false,
+                        isHintTarget = false,
+                        shakeToken = 0L,
+                        hiddenSlots = IntRange.EMPTY,
+                        colorBlind = settings.colorBlind,
+                        ballSkin = settings.ballSkin,
+                        tubeSkin = settings.tubeSkin,
+                        onSlotMeasured = { _, _ -> },
+                        onTopExitMeasured = {},
+                        onClick = {},
+                    )
+                }
             }
         }
     }

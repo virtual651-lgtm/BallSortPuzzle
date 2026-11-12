@@ -4,6 +4,7 @@
  */
 package com.example.ballsort.ui.components
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.RepeatMode
@@ -13,6 +14,10 @@ import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.keyframes
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -22,11 +27,19 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.defaultMinSize
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -37,6 +50,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
@@ -53,6 +67,8 @@ import androidx.compose.ui.unit.dp
 import com.example.ballsort.R
 import com.example.ballsort.domain.GameLogic
 import com.example.ballsort.domain.model.Tube
+import com.example.ballsort.ui.theme.BallSkin
+import com.example.ballsort.ui.theme.TubeSkin
 import com.example.ballsort.ui.theme.ballEntryFor
 import kotlin.math.roundToInt
 
@@ -73,6 +89,9 @@ fun TubeView(
     onTopExitMeasured: (rootCenter: Offset) -> Unit,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
+    ballSkin: String = BallSkin.CLASSIC.id,
+    tubeSkin: String = TubeSkin.GLASS.id,
+    isLocked: Boolean = false,
 ) {
     val context = LocalContext.current
     val density = LocalDensity.current
@@ -125,22 +144,38 @@ fun TubeView(
         label = "topLift",
     )
 
+    val resolvedTubeSkin = TubeSkin.fromId(tubeSkin)
+    val defaultBorderColor = when (resolvedTubeSkin) {
+        TubeSkin.GLASS -> MaterialTheme.colorScheme.onSurface.copy(alpha = 0.35f)
+        TubeSkin.DARK -> Color(0xFF607D8B).copy(alpha = 0.75f)
+        TubeSkin.WOOD -> Color(0xFF8D6E63)
+        TubeSkin.GOLD -> Color(0xFFD4AF37)
+    }
+
     val borderColor by animateColorAsState(
         targetValue = when {
             isSelected -> MaterialTheme.colorScheme.primary
             isHintSource -> Color(0xFFFFC107)
             isHintTarget -> Color(0xFF00E676)
             isCompleted -> Color(0xFF4CAF50)
-            else -> MaterialTheme.colorScheme.onSurface.copy(alpha = 0.35f)
+            isLocked -> Color(0xFFFF9800).copy(alpha = 0.75f)
+            else -> defaultBorderColor
         },
         animationSpec = tween(200),
         label = "tubeBorder",
     )
 
+    val defaultBgColor = when (resolvedTubeSkin) {
+        TubeSkin.GLASS -> MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.36f)
+        TubeSkin.DARK -> Color(0xFF1C2331).copy(alpha = 0.65f)
+        TubeSkin.WOOD -> Color(0xFF795548).copy(alpha = 0.22f)
+        TubeSkin.GOLD -> Color(0xFFFFD54F).copy(alpha = 0.16f)
+    }
+
     val tubeBgColor = when {
         isCompleted -> Color(0xFF4CAF50).copy(alpha = 0.14f)
         isSelected -> MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)
-        else -> MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.36f)
+        else -> defaultBgColor
     }
 
     // Erişilebilirlik metinleri
@@ -172,7 +207,7 @@ fun TubeView(
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = modifier
-            .defaultMinSize(minWidth = 48.dp, minHeight = 48.dp)
+            .defaultMinSize(minWidth = minOf(48.dp, tubeWidth), minHeight = 48.dp)
             .offset { IntOffset(shakeOffset.value.roundToInt(), 0) }
             .scale(completeScale.value * hintPulse)
             .semantics(mergeDescendants = true) {
@@ -187,8 +222,9 @@ fun TubeView(
             )
             .padding(horizontal = 2.dp),
     ) {
-        // Seçili topun yükselmesi ve uçuş çıkış noktası için üst boşluk
+        // Seçili topun yükselmesi, uçuş çıkış noktası ve tamamlanan tüp mührü için üst alan
         Box(
+            contentAlignment = Alignment.BottomCenter,
             modifier = Modifier
                 .width(tubeWidth)
                 .height(22.dp)
@@ -201,7 +237,46 @@ fun TubeView(
                         )
                     )
                 },
-        )
+        ) {
+            androidx.compose.animation.AnimatedVisibility(
+                visible = isCompleted,
+                enter = fadeIn(tween(220)) + scaleIn(initialScale = 0.7f, animationSpec = tween(220)),
+                exit = fadeOut(tween(150)) + scaleOut(targetScale = 0.7f, animationSpec = tween(150)),
+            ) {
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier
+                        .width(tubeWidth * 0.68f)
+                        .height(14.dp)
+                        .background(
+                            color = Color(0xFF4CAF50),
+                            shape = RoundedCornerShape(topStart = 6.dp, topEnd = 6.dp, bottomStart = 2.dp, bottomEnd = 2.dp),
+                        ),
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Check,
+                        contentDescription = null,
+                        tint = Color.White,
+                        modifier = Modifier.size(11.dp),
+                    )
+                }
+            }
+            if (isLocked && !isCompleted) {
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier
+                        .size(20.dp)
+                        .background(Color(0xFFFF9800), CircleShape),
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Lock,
+                        contentDescription = stringResource(R.string.tube_locked_badge),
+                        tint = Color.White,
+                        modifier = Modifier.size(12.dp),
+                    )
+                }
+            }
+        }
 
         // Tüp gövdesi
         Box(
@@ -214,12 +289,49 @@ fun TubeView(
                     width = if (isSelected || isHintSource || isHintTarget || isCompleted) 2.5.dp else 1.5.dp,
                     color = borderColor,
                     shape = tubeShape,
-                )
-                .padding(bottom = 6.dp, top = 4.dp),
+                ),
         ) {
+            // Üst cam ağızlık (rim) parlaması
+            Box(
+                modifier = Modifier
+                    .align(Alignment.TopCenter)
+                    .fillMaxWidth()
+                    .height(5.dp)
+                    .background(
+                        brush = Brush.horizontalGradient(
+                            colors = listOf(
+                                borderColor.copy(alpha = 0.35f),
+                                Color.White.copy(alpha = 0.45f),
+                                borderColor.copy(alpha = 0.35f),
+                            ),
+                        ),
+                        shape = RoundedCornerShape(topStart = 8.dp, topEnd = 8.dp),
+                    ),
+            )
+
+            // Sol kenar dikey cam yansıması
+            Box(
+                modifier = Modifier
+                    .align(Alignment.CenterStart)
+                    .padding(start = 5.dp, top = 12.dp, bottom = 16.dp)
+                    .width(3.dp)
+                    .fillMaxHeight()
+                    .background(
+                        brush = Brush.verticalGradient(
+                            colors = listOf(
+                                Color.White.copy(alpha = 0.32f),
+                                Color.White.copy(alpha = 0.08f),
+                                Color.Transparent,
+                            ),
+                        ),
+                        shape = CircleShape,
+                    ),
+            )
+
             Column(
                 verticalArrangement = Arrangement.spacedBy(spacing, Alignment.Bottom),
                 horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier.padding(bottom = 6.dp, top = 4.dp),
             ) {
                 // Yukarıdan aşağıya slot indexleri: (capacity - 1) downTo 0
                 for (slot in (capacity - 1) downTo 0) {
@@ -249,6 +361,7 @@ fun TubeView(
                                 colorId = ballColor,
                                 ballSize = ballSize,
                                 colorBlind = colorBlind,
+                                ballSkin = ballSkin,
                                 modifier = Modifier
                                     .offset { IntOffset(0, liftPx.roundToInt()) }
                                     .alpha(if (isHiddenForFlight) 0f else 1f),

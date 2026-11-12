@@ -14,6 +14,11 @@ data class SaveData(
     val levels: Map<Int, LevelResult> = emptyMap(),
     val inProgress: InProgress? = null,
     val lastCompletedDailyEpochDay: Long? = null,
+    val dailyStreak: Int = 0,
+    val bestDailyStreak: Int = 0,
+    val totalDailyCompleted: Int = 0,
+    val duelWins: Int = 0,
+    val noHintWins: Int = 0,
 )
 
 @Serializable
@@ -50,7 +55,9 @@ data class Settings(
     val dynamicColor: Boolean = true,
     val colorBlind: Boolean = false,
     val multiMove: Boolean = true,
-    val language: String = "system",    // "system" | "tr" | "en"
+    val language: String = "tr",        // "system" | "tr" | "en"
+    val ballSkin: String = "classic",   // "classic" | "neon" | "gem" | "minimal"
+    val tubeSkin: String = "glass",     // "glass" | "dark" | "wood" | "gold"
 )
 
 @Serializable

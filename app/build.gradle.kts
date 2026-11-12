@@ -12,7 +12,7 @@ android {
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.example.ballsort"
+        applicationId = "com.renktupleri.app"
         minSdk = 24
         targetSdk = 35
         versionCode = 1
@@ -20,11 +20,11 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
-        // VARSAYIM: Ücretsiz GitHub Releases güncelleme kontrolü için örnek URL; kendi repo adresinizle değiştirin.
+        // Ücretsiz GitHub Releases güncelleme kontrolü URL'si
         buildConfigField(
             "String",
             "UPDATE_CHECK_URL",
-            "\"https://raw.githubusercontent.com/KULLANICI_ADIN/ball-sort-puzzle/main/version.json\""
+            "\"https://raw.githubusercontent.com/virtual651-lgtm/BallSortPuzzle/main/version.json\""
         )
     }
 

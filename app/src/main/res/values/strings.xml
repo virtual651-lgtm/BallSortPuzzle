@@ -6,6 +6,8 @@
     <string name="menu_play">Oyna (Seviye %1$d)</string>
     <string name="menu_daily_challenge">Günlük Meydan Okuma</string>
     <string name="menu_daily_done">Günlük Meydan Okuma (Tamamlandı)</string>
+    <string name="menu_duel_bot">Bot Düellosu</string>
+    <string name="menu_duel_lan">Wi-Fi Düellosu (Aynı Ağ)</string>
     <string name="menu_levels">Seviyeler</string>
     <string name="menu_howto">Nasıl Oynanır?</string>
     <string name="menu_settings">Ayarlar</string>
@@ -15,7 +17,28 @@
 
     <string name="level_title">Seviye %1$d</string>
     <string name="daily_level_title">Günlük</string>
+    <string name="duel_level_title">Düello</string>
+    <string name="duel_bot_progress">Bot: %1$d/%2$d</string>
+    <string name="duel_lan_progress">Rakip: %1$d/%2$d tüp (%3$d hamle)</string>
+    <string name="win_duel_subtitle">Rakibi yendin!</string>
+    <string name="win_new_duel">Yeni Düello</string>
+    <string name="duel_lost_title">Rakip Kazandı</string>
+    <string name="duel_lost_message">Rakip tahtayı senden önce tamamladı!</string>
+
+    <string name="lan_lobby_title">Wi-Fi Düellosu</string>
+    <string name="lan_host_btn">Oda Kur</string>
+    <string name="lan_join_btn">Odaya Katıl</string>
+    <string name="lan_waiting_guest">Aynı Wi-Fi ağındaki rakip bekleniyor…</string>
+    <string name="lan_ip_port_hint">IP: %1$s:%2$d</string>
+    <string name="lan_searching_rooms">Ağdaki odalar aranıyor…</string>
+    <string name="lan_manual_ip_label">Manuel IP (ör. 192.168.1.25)</string>
+    <string name="lan_manual_port_label">Port</string>
+    <string name="lan_connect_btn">Bağlan</string>
+    <string name="lan_connecting">Bağlanılıyor…</string>
+    <string name="lan_room_item">%1$s (%2$s:%3$d)</string>
     <string name="moves_label">%1$d hamle</string>
+    <string name="moves_limit_label">%1$d/%2$d hamle</string>
+    <string name="stuck_move_limit_message">Hamle sınırına ulaşıldı. Son hamleyi geri alabilir, yeniden başlatabilir veya ekstra tüp ekleyebilirsin.</string>
     <string name="action_undo">Geri Al</string>
     <string name="action_restart">Yeniden</string>
     <string name="action_hint">İpucu</string>
@@ -88,5 +111,39 @@
     <string name="color_brown">Kahverengi</string>
     <string name="color_indigo">Çivit</string>
     <string name="color_teal">Turkuaz</string>
+
+    <string name="stats_stars">%1$d Yıldız</string>
+    <string name="stats_levels">%1$d Bölüm</string>
+    <string name="stats_streak">%1$d Gün Seri</string>
+
+    <string name="settings_ball_skin">Top Teması</string>
+    <string name="settings_tube_skin">Tüp Teması</string>
+    <string name="settings_skins_stars_hint">Toplam yıldız: %1$d ★</string>
+    <string name="skin_ball_classic">Klasik</string>
+    <string name="skin_ball_neon">Neon</string>
+    <string name="skin_ball_gem">Kristal</string>
+    <string name="skin_ball_minimal">Minimal</string>
+    <string name="skin_tube_glass">Cam</string>
+    <string name="skin_tube_dark">Karbon</string>
+    <string name="skin_tube_wood">Ahşap</string>
+    <string name="skin_tube_gold">Altın</string>
+    <string name="skin_locked_format">%1$s (%2$d ★)</string>
+    <string name="settings_skin_preview">Önizleme</string>
+
+    <string name="tube_locked_badge">Kilitli (1 tüp tamamla)</string>
+
+    <string name="menu_achievements">Başarımlar (%1$d/%2$d)</string>
+    <string name="achievements_title">Başarımlar</string>
+    <string name="close">Kapat</string>
+    <string name="ach_first_win_title">İlk Zafer</string>
+    <string name="ach_first_win_desc">İlk bölümünü tamamla</string>
+    <string name="ach_duel_winner_title">Düello Ustası</string>
+    <string name="ach_duel_winner_desc">Bir bot düellosu kazan</string>
+    <string name="ach_streak_3_title">Kararlı Oyuncu</string>
+    <string name="ach_streak_3_desc">3 gün üst üste günlük bölümü bitir</string>
+    <string name="ach_no_hint_5_title">Saf Strateji</string>
+    <string name="ach_no_hint_5_desc">İpucu kullanmadan 5 bölüm tamamla</string>
+    <string name="ach_stars_30_title">Yıldız Avcısı</string>
+    <string name="ach_stars_30_desc">Toplam 30 yıldız topla</string>
 </resources>
 

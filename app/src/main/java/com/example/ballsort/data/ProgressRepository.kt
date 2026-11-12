@@ -10,6 +10,8 @@ interface ProgressRepository {
     val saveData: Flow<SaveData>
     suspend fun saveResult(levelId: Int, result: LevelResult)
     suspend fun saveDailyCompleted(epochDay: Long)
+    suspend fun recordDuelWin() {}
+    suspend fun recordNoHintWin() {}
     suspend fun saveInProgress(inProgress: InProgress)
     suspend fun clearInProgress()
 }

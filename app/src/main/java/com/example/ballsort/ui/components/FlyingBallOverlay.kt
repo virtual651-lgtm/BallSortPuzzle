@@ -21,6 +21,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
 import com.example.ballsort.ui.game.TransferAnimation
+import com.example.ballsort.ui.theme.BallSkin
 import com.example.ballsort.ui.theme.ballEntryFor
 import kotlin.math.min
 
@@ -34,6 +35,7 @@ fun FlyingBallOverlay(
     slotPoints: Map<Pair<Int, Int>, Offset>,
     onFinished: () -> Unit,
     modifier: Modifier = Modifier,
+    ballSkin: String = BallSkin.CLASSIC.id,
 ) {
     if (transfer == null) return
 
@@ -94,6 +96,7 @@ fun FlyingBallOverlay(
                 colorBlind = colorBlind,
                 center = offsetCenter,
                 radius = radiusPx,
+                ballSkin = ballSkin,
             )
         }
     }

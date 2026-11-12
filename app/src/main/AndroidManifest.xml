@@ -1,19 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <!-- Ücretsiz GitHub Releases sürüm kontrolü için (oyun çevrimdışı da çalışır) -->
+    <!-- Ücretsiz GitHub Releases sürüm kontrolü ve aynı ağda Wi-Fi düellosu için -->
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <!-- Titreşim geri bildirimi -->
     <uses-permission android:name="android.permission.VIBRATE" />
 
     <application
-        android:name=".BallSortApp"
+        android:name=".RenkTupleriApp"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:label="@string/app_name"
         android:supportsRtl="true"
-        android:theme="@style/Theme.BallSort.Starting">
+        android:theme="@style/Theme.RenkTupleri.Starting">
 
         <activity
             android:name=".MainActivity"

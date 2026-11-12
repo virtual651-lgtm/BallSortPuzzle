@@ -11,5 +11,7 @@ data class LevelConfig(
     val emptyTubes: Int,
     val seed: Long,
     val shuffleMoves: Int,
+    val minSolutionMoves: Int = 0,
+    val maxMoves: Int? = null,
 )
 

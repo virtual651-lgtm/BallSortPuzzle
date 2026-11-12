@@ -1,4 +1,4 @@
-# Renk Tüpleri (Ball Sort Puzzle) – Android
+# Renk Tüpleri – Android
 
 Kotlin + Jetpack Compose + Material 3 + Hilt + DataStore ile geliştirilmiş çevrimdışı Android bulmaca oyunu.
 

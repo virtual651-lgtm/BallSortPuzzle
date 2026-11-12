@@ -12,6 +12,8 @@ import com.example.ballsort.data.DataStoreSettingsRepository
 import com.example.ballsort.data.ProgressRepository
 import com.example.ballsort.data.SettingsRepository
 import com.example.ballsort.data.ballSortDataStore
+import com.example.ballsort.platform.LanDuelManager
+import com.example.ballsort.platform.LanDuelTransport
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
@@ -43,6 +45,12 @@ abstract class RepositoryModule {
     abstract fun bindSettingsRepository(
         impl: DataStoreSettingsRepository,
     ): SettingsRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindLanDuelTransport(
+        impl: LanDuelManager,
+    ): LanDuelTransport
 }
 
 @Module

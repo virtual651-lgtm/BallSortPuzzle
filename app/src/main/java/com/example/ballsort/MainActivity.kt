@@ -8,11 +8,13 @@ import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.ballsort.data.Settings
 import com.example.ballsort.data.SettingsRepository
+import com.example.ballsort.platform.LocaleHelper
 import com.example.ballsort.ui.navigation.AppNavHost
 import com.example.ballsort.ui.theme.BallSortTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -33,6 +35,9 @@ class MainActivity : AppCompatActivity() {
             val settings by settingsRepository.settings.collectAsStateWithLifecycle(
                 initialValue = Settings()
             )
+            LaunchedEffect(settings.language) {
+                LocaleHelper.applyLanguage(settings.language)
+            }
             BallSortTheme(
                 themeMode = settings.theme,
                 dynamicColor = settings.dynamicColor,

@@ -49,6 +49,7 @@ fun WinDialog(
     onNextLevel: () -> Unit,
     onReplay: () -> Unit,
     onMenu: () -> Unit,
+    isDuel: Boolean = false,
 ) {
     var revealedStars by remember(stars) { mutableIntStateOf(0) }
     LaunchedEffect(stars) {
@@ -68,10 +69,10 @@ fun WinDialog(
                 modifier = Modifier.fillMaxWidth(),
             ) {
                 Text(
-                    text = if (isDaily) {
-                        stringResource(R.string.win_daily_subtitle)
-                    } else {
-                        stringResource(R.string.win_subtitle, levelId)
+                    text = when {
+                        isDuel -> stringResource(R.string.win_duel_subtitle)
+                        isDaily -> stringResource(R.string.win_daily_subtitle)
+                        else -> stringResource(R.string.win_subtitle, levelId)
                     },
                     style = MaterialTheme.typography.bodyLarge,
                 )
@@ -100,7 +101,11 @@ fun WinDialog(
             }
         },
         confirmButton = {
-            if (!isDaily) {
+            if (isDuel) {
+                Button(onClick = onNextLevel) {
+                    Text(text = stringResource(R.string.win_new_duel))
+                }
+            } else if (!isDaily) {
                 Button(onClick = onNextLevel) {
                     Text(text = stringResource(R.string.win_next_level))
                 }
@@ -130,13 +135,31 @@ fun StuckDialog(
     onUndo: () -> Unit,
     onRestart: () -> Unit,
     onAddTube: () -> Unit,
+    isMoveLimitReached: Boolean = false,
+    isDuelBotWon: Boolean = false,
 ) {
     AlertDialog(
         onDismissRequest = {},
-        title = { Text(text = stringResource(R.string.stuck_title)) },
-        text = { Text(text = stringResource(R.string.stuck_message)) },
+        title = {
+            Text(
+                text = stringResource(
+                    if (isDuelBotWon) R.string.duel_lost_title else R.string.stuck_title
+                )
+            )
+        },
+        text = {
+            Text(
+                text = stringResource(
+                    when {
+                        isDuelBotWon -> R.string.duel_lost_message
+                        isMoveLimitReached -> R.string.stuck_move_limit_message
+                        else -> R.string.stuck_message
+                    }
+                )
+            )
+        },
         confirmButton = {
-            if (extraTubeAvailable) {
+            if (!isDuelBotWon && extraTubeAvailable) {
                 Button(onClick = onAddTube) {
                     Text(text = stringResource(R.string.action_add_tube))
                 }

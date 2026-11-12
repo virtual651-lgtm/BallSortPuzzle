@@ -22,10 +22,19 @@ data class TransferAnimation(
 data class GameUiState(
     val levelId: Int = 1,
     val isDaily: Boolean = false,
+    val isDuel: Boolean = false,
+    val isLanDuel: Boolean = false,
+    val botMoves: Int = 0,
+    val botTotalMoves: Int = 0,
+    val lanOpponentCompleted: Int = 0,
+    val lanOpponentTotal: Int = 7,
+    val lanOpponentMoves: Int = 0,
+    val duelBotWon: Boolean = false,
     val capacity: Int = 4,
     val tubes: List<Tube> = emptyList(),
     val selectedTube: Int? = null,
     val moves: Int = 0,
+    val maxMoves: Int? = null,
     val elapsedMs: Long = 0L,
     val canUndo: Boolean = false,
     val extraTubeAvailable: Boolean = true,
@@ -39,5 +48,8 @@ data class GameUiState(
     val invalidShakeTube: Int? = null,
     val invalidShakeToken: Long = 0L,
     val colorBlind: Boolean = false,
+    val ballSkin: String = "classic",
+    val tubeSkin: String = "glass",
+    val lockedTubeIndex: Int? = null,
 )
 
