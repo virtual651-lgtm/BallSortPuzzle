@@ -6,9 +6,13 @@ package com.example.ballsort.ui.menu
 
 import android.content.Intent
 import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -41,6 +45,7 @@ import androidx.compose.material.icons.filled.HelpOutline
 import androidx.compose.material.icons.filled.LocalFireDepartment
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.QrCodeScanner
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.SystemUpdate
@@ -69,11 +74,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.ballsort.R
+import com.example.ballsort.platform.LanDuelManager
 import com.example.ballsort.platform.LanDuelState
+import com.example.ballsort.ui.components.QrCodeHelper
+import com.journeyapps.barcodescanner.ScanContract
+import com.journeyapps.barcodescanner.ScanOptions
 
 @Composable
 fun MenuScreen(
@@ -109,7 +119,8 @@ fun MenuScreen(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(innerPadding)
-                    .padding(horizontal = 28.dp),
+                    .verticalScroll(rememberScrollState())
+                    .padding(horizontal = 24.dp, vertical = 16.dp),
             ) {
                 MiniTubesLogo()
                 Spacer(modifier = Modifier.height(14.dp))
@@ -260,28 +271,40 @@ fun MenuScreen(
             Spacer(modifier = Modifier.height(12.dp))
 
             Row(
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
                 modifier = Modifier.fillMaxWidth(),
             ) {
                 OutlinedButton(
                     onClick = onOpenHowTo,
+                    contentPadding = PaddingValues(horizontal = 10.dp, vertical = 4.dp),
                     modifier = Modifier
-                        .weight(1f)
+                        .weight(1.15f)
                         .height(48.dp),
                 ) {
-                    Icon(Icons.Default.HelpOutline, contentDescription = null)
+                    Icon(Icons.Default.HelpOutline, contentDescription = null, modifier = Modifier.size(18.dp))
                     Spacer(modifier = Modifier.width(6.dp))
-                    Text(text = stringResource(R.string.menu_howto))
+                    Text(
+                        text = stringResource(R.string.menu_howto),
+                        maxLines = 1,
+                        softWrap = false,
+                        overflow = TextOverflow.Ellipsis,
+                    )
                 }
                 OutlinedButton(
                     onClick = onOpenSettings,
+                    contentPadding = PaddingValues(horizontal = 10.dp, vertical = 4.dp),
                     modifier = Modifier
-                        .weight(1f)
+                        .weight(0.85f)
                         .height(48.dp),
                 ) {
-                    Icon(Icons.Default.Settings, contentDescription = null)
+                    Icon(Icons.Default.Settings, contentDescription = null, modifier = Modifier.size(18.dp))
                     Spacer(modifier = Modifier.width(6.dp))
-                    Text(text = stringResource(R.string.menu_settings))
+                    Text(
+                        text = stringResource(R.string.menu_settings),
+                        maxLines = 1,
+                        softWrap = false,
+                        overflow = TextOverflow.Ellipsis,
+                    )
                 }
             }
 
@@ -384,7 +407,12 @@ fun MenuScreen(
 
     if (showLanLobby) {
         var manualIp by remember { mutableStateOf("") }
-        var manualPort by remember { mutableStateOf("") }
+        var manualPort by remember { mutableStateOf(LanDuelManager.DEFAULT_PORT.toString()) }
+        val qrScannerLauncher = rememberLauncherForActivityResult(ScanContract()) { result ->
+            val raw = result.contents ?: return@rememberLauncherForActivityResult
+            val parsed = QrCodeHelper.parseEndpoint(raw) ?: return@rememberLauncherForActivityResult
+            viewModel.connectLanDuel(parsed.first, parsed.second)
+        }
         AlertDialog(
             onDismissRequest = {
                 showLanLobby = false
@@ -411,6 +439,33 @@ fun MenuScreen(
                     when (val st = lanState) {
                         LanDuelState.Idle -> Unit
                         is LanDuelState.Hosting -> {
+                            val qrBitmap = remember(st.localIp, st.port) {
+                                QrCodeHelper.generateQrBitmap(QrCodeHelper.encodeEndpoint(st.localIp, st.port))
+                            }
+                            if (qrBitmap != null) {
+                                Box(
+                                    contentAlignment = Alignment.Center,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(vertical = 4.dp),
+                                ) {
+                                    Image(
+                                        bitmap = qrBitmap,
+                                        contentDescription = null,
+                                        modifier = Modifier
+                                            .size(176.dp)
+                                            .clip(RoundedCornerShape(12.dp))
+                                            .background(Color.White)
+                                            .padding(8.dp),
+                                    )
+                                }
+                                Text(
+                                    text = stringResource(R.string.lan_qr_hint),
+                                    style = MaterialTheme.typography.bodySmall,
+                                    textAlign = TextAlign.Center,
+                                    modifier = Modifier.fillMaxWidth(),
+                                )
+                            }
                             Row(
                                 verticalAlignment = Alignment.CenterVertically,
                                 horizontalArrangement = Arrangement.spacedBy(10.dp),
@@ -428,6 +483,22 @@ fun MenuScreen(
                             )
                         }
                         is LanDuelState.Browsing -> {
+                            Button(
+                                onClick = {
+                                    qrScannerLauncher.launch(
+                                        ScanOptions().apply {
+                                            setDesiredBarcodeFormats(ScanOptions.QR_CODE)
+                                            setBeepEnabled(false)
+                                            setOrientationLocked(true)
+                                        }
+                                    )
+                                },
+                                modifier = Modifier.fillMaxWidth(),
+                            ) {
+                                Icon(Icons.Default.QrCodeScanner, contentDescription = null)
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text(text = stringResource(R.string.lan_scan_qr_btn))
+                            }
                             Text(
                                 text = stringResource(R.string.lan_searching_rooms),
                                 style = MaterialTheme.typography.bodySmall,

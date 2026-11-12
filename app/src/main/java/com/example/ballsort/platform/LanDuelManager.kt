@@ -92,7 +92,7 @@ class LanDuelManager @Inject constructor(
         val seed = System.currentTimeMillis()
         ioJob = scope.launch {
             try {
-                val server = ServerSocket(0)
+                val server = runCatching { ServerSocket(DEFAULT_PORT) }.getOrElse { ServerSocket(0) }
                 serverSocket = server
                 val port = server.localPort
                 val localIp = findLocalIpv4() ?: "127.0.0.1"
@@ -279,6 +279,7 @@ class LanDuelManager @Inject constructor(
 
     companion object {
         private const val SERVICE_TYPE = "_renktupleri._tcp."
+        const val DEFAULT_PORT = 47777
     }
 }
 

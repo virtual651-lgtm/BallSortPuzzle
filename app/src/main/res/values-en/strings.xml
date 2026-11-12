@@ -34,6 +34,8 @@
     <string name="lan_manual_ip_label">Manual IP (e.g. 192.168.1.25)</string>
     <string name="lan_manual_port_label">Port</string>
     <string name="lan_connect_btn">Connect</string>
+    <string name="lan_scan_qr_btn">Scan QR Code</string>
+    <string name="lan_qr_hint">Your opponent can scan this QR code to join</string>
     <string name="lan_connecting">Connecting…</string>
     <string name="lan_room_item">%1$s (%2$s:%3$d)</string>
     <string name="moves_label">%1$d moves</string>

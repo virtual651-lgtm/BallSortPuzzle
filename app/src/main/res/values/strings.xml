@@ -34,6 +34,8 @@
     <string name="lan_manual_ip_label">Manuel IP (ör. 192.168.1.25)</string>
     <string name="lan_manual_port_label">Port</string>
     <string name="lan_connect_btn">Bağlan</string>
+    <string name="lan_scan_qr_btn">QR Kod Tara</string>
+    <string name="lan_qr_hint">Rakibin bu QR kodu taratarak katılabilir</string>
     <string name="lan_connecting">Bağlanılıyor…</string>
     <string name="lan_room_item">%1$s (%2$s:%3$d)</string>
     <string name="moves_label">%1$d hamle</string>

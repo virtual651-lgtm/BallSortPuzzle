@@ -85,6 +85,8 @@ dependencies {
     implementation(libs.datastore.preferences)
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.coroutines.android)
+    implementation(libs.zxing.core)
+    implementation(libs.zxing.embedded)
 
     testImplementation(libs.junit)
     testImplementation(libs.coroutines.test)
