@@ -109,6 +109,13 @@ fun MenuScreen(
         }
     }
 
+    LaunchedEffect(uiState.shouldShowWalkthrough) {
+        if (uiState.shouldShowWalkthrough) {
+            viewModel.dismissInitialWalkthrough()
+            onOpenHowTo()
+        }
+    }
+
     GameBackdrop(modifier = Modifier.fillMaxSize()) {
         Scaffold(
             containerColor = Color.Transparent,

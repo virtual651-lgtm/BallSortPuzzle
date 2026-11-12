@@ -14,6 +14,7 @@ interface ProgressRepository {
     suspend fun recordNoHintWin() {}
     suspend fun saveInProgress(inProgress: InProgress)
     suspend fun clearInProgress()
+    suspend fun setWalkthroughSeen() {}
 }
 
 interface SettingsRepository {

@@ -19,6 +19,7 @@ data class SaveData(
     val totalDailyCompleted: Int = 0,
     val duelWins: Int = 0,
     val noHintWins: Int = 0,
+    val hasSeenWalkthrough: Boolean = false,
 )
 
 @Serializable

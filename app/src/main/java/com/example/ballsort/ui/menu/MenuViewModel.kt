@@ -36,11 +36,12 @@ data class MenuUiState(
     val dailyStreak: Int = 0,
     val achievements: List<AchievementItem> = emptyList(),
     val updateInfo: AppUpdateInfo? = null,
+    val shouldShowWalkthrough: Boolean = false,
 )
 
 @HiltViewModel
 class MenuViewModel @Inject constructor(
-    progressRepository: ProgressRepository,
+    private val progressRepository: ProgressRepository,
     private val updateChecker: UpdateChecker,
     private val appUpdateInstaller: AppUpdateInstaller,
     private val lanDuelTransport: LanDuelTransport,
@@ -75,6 +76,7 @@ class MenuViewModel @Inject constructor(
             dailyStreak = activeStreak,
             achievements = Achievements.evaluate(save),
             updateInfo = update,
+            shouldShowWalkthrough = !save.hasSeenWalkthrough && save.levels.isEmpty(),
         )
     }.stateIn(
         scope = viewModelScope,
@@ -92,6 +94,12 @@ class MenuViewModel @Inject constructor(
     fun browseLanDuel() = lanDuelTransport.startBrowsing()
     fun connectLanDuel(host: String, port: Int) = lanDuelTransport.connectTo(host, port)
     fun closeLanDuel() = lanDuelTransport.close()
+
+    fun dismissInitialWalkthrough() {
+        viewModelScope.launch {
+            progressRepository.setWalkthroughSeen()
+        }
+    }
 
     fun downloadAndInstallUpdate(context: android.content.Context, apkUrl: String) {
         viewModelScope.launch {

@@ -118,6 +118,13 @@ class DataStoreProgressRepository @Inject constructor(
         }
     }
 
+    override suspend fun setWalkthroughSeen() {
+        dataStore.edit { prefs ->
+            val current = decodeSave(prefs[saveKey])
+            prefs[saveKey] = json.encodeToString(current.copy(hasSeenWalkthrough = true))
+        }
+    }
+
     private fun decodeSave(raw: String?): SaveData {
         if (raw == null) return SaveData()
         return try {
