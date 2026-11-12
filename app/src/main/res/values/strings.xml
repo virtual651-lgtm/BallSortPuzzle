@@ -13,7 +13,11 @@
     <string name="menu_settings">Ayarlar</string>
 
     <string name="update_available_title">Yeni Güncelleme Mevcut (%1$s)</string>
-    <string name="update_available_action">İndir ve Güncelle</string>
+    <string name="update_available_action">Güncelle</string>
+    <string name="update_dialog_title">Yeni Güncelleme Mevcut</string>
+    <string name="update_dialog_desc">Daha iyi bir deneyim ve yeni bölümler için Renk Tüpleri v%1$s sürümü hazır.</string>
+    <string name="update_later_btn">Daha Sonra</string>
+    <string name="update_start_btn">Şimdi Güncelle</string>
     <string name="update_downloading">İndiriliyor… %%%1$d</string>
     <string name="update_install_btn">Şimdi Yükle</string>
     <string name="update_failed">İndirme başarısız: %1$s</string>

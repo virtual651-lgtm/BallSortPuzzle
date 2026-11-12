@@ -100,6 +100,7 @@ fun MenuScreen(
     val context = LocalContext.current
     var showAchievements by remember { mutableStateOf(false) }
     var showLanLobby by remember { mutableStateOf(false) }
+    var dismissedUpdateVersion by remember { mutableStateOf<String?>(null) }
 
     LaunchedEffect(lanState) {
         if (showLanLobby && lanState is LanDuelState.InMatch) {
@@ -409,6 +410,114 @@ fun MenuScreen(
                 }
             }
         }
+        }
+    }
+
+    uiState.updateInfo?.let { update ->
+        val showPopup = dismissedUpdateVersion != update.versionName
+        if (showPopup) {
+            AlertDialog(
+                onDismissRequest = {
+                    if (downloadState !is UpdateDownloadState.Downloading) {
+                        dismissedUpdateVersion = update.versionName
+                    }
+                },
+                icon = {
+                    Icon(
+                        imageVector = Icons.Default.SystemUpdate,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(36.dp),
+                    )
+                },
+                title = {
+                    Text(
+                        text = stringResource(R.string.update_dialog_title),
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                },
+                text = {
+                    Column(
+                        verticalArrangement = Arrangement.spacedBy(12.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        modifier = Modifier.fillMaxWidth(),
+                    ) {
+                        Text(
+                            text = stringResource(R.string.update_dialog_desc, update.versionName),
+                            style = MaterialTheme.typography.bodyMedium,
+                            textAlign = TextAlign.Center,
+                        )
+                        when (val state = downloadState) {
+                            is UpdateDownloadState.Downloading -> {
+                                Column(
+                                    verticalArrangement = Arrangement.spacedBy(6.dp),
+                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                    modifier = Modifier.fillMaxWidth(),
+                                ) {
+                                    androidx.compose.material3.LinearProgressIndicator(
+                                        progress = { state.progress },
+                                        modifier = Modifier.fillMaxWidth(),
+                                    )
+                                    Text(
+                                        text = stringResource(R.string.update_downloading, (state.progress * 100).toInt()),
+                                        style = MaterialTheme.typography.labelMedium,
+                                    )
+                                }
+                            }
+                            is UpdateDownloadState.ReadyToInstall -> {
+                                Text(
+                                    text = stringResource(R.string.update_install_btn),
+                                    style = MaterialTheme.typography.labelLarge,
+                                    color = MaterialTheme.colorScheme.primary,
+                                )
+                            }
+                            is UpdateDownloadState.Error -> {
+                                Text(
+                                    text = stringResource(R.string.update_failed, state.message),
+                                    color = MaterialTheme.colorScheme.error,
+                                    style = MaterialTheme.typography.labelSmall,
+                                )
+                            }
+                            is UpdateDownloadState.Idle -> { /* Başlangıç */ }
+                        }
+                    }
+                },
+                confirmButton = {
+                    when (val state = downloadState) {
+                        is UpdateDownloadState.ReadyToInstall -> {
+                            Button(
+                                onClick = {
+                                    viewModel.installApkFile(context, state.file)
+                                },
+                            ) {
+                                Text(text = stringResource(R.string.update_install_btn))
+                            }
+                        }
+                        is UpdateDownloadState.Downloading -> { /* İndirilirken buton gizli veya devre dışı */ }
+                        else -> {
+                            Button(
+                                onClick = {
+                                    viewModel.downloadAndInstallUpdate(context, update.apkUrl)
+                                },
+                            ) {
+                                Text(text = stringResource(R.string.update_start_btn))
+                            }
+                        }
+                    }
+                },
+                dismissButton = {
+                    if (downloadState !is UpdateDownloadState.Downloading) {
+                        TextButton(
+                            onClick = {
+                                dismissedUpdateVersion = update.versionName
+                            },
+                        ) {
+                            Text(text = stringResource(R.string.update_later_btn))
+                        }
+                    }
+                },
+            )
         }
     }
 
