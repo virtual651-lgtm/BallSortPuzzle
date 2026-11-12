@@ -32,9 +32,11 @@ class MainActivity : AppCompatActivity() {
         enableEdgeToEdge()
 
         setContent {
-            val settings by settingsRepository.settings.collectAsStateWithLifecycle(
-                initialValue = Settings()
+            val settingsState by settingsRepository.settings.collectAsStateWithLifecycle(
+                initialValue = null
             )
+            val settings = settingsState ?: return@setContent
+
             LaunchedEffect(settings.language) {
                 LocaleHelper.applyLanguage(settings.language)
             }

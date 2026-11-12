@@ -56,7 +56,7 @@ data class Settings(
     val dynamicColor: Boolean = true,
     val colorBlind: Boolean = false,
     val multiMove: Boolean = true,
-    val language: String = "tr",        // "system" | "tr" | "en"
+    val language: String = "system",    // "system" | "tr" | "en"
     val ballSkin: String = "classic",   // "classic" | "neon" | "gem" | "minimal"
     val tubeSkin: String = "glass",     // "glass" | "dark" | "wood" | "gold"
 )
