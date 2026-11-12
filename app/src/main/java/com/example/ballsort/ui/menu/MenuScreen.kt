@@ -81,6 +81,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.ballsort.R
 import com.example.ballsort.platform.LanDuelManager
 import com.example.ballsort.platform.LanDuelState
+import com.example.ballsort.platform.UpdateDownloadState
 import com.example.ballsort.ui.components.QrCodeHelper
 import com.journeyapps.barcodescanner.ScanContract
 import com.journeyapps.barcodescanner.ScanOptions
@@ -95,6 +96,7 @@ fun MenuScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val lanState by viewModel.lanDuelState.collectAsStateWithLifecycle()
+    val downloadState by viewModel.downloadState.collectAsStateWithLifecycle()
     val context = LocalContext.current
     var showAchievements by remember { mutableStateOf(false) }
     var showLanLobby by remember { mutableStateOf(false) }
@@ -330,31 +332,78 @@ fun MenuScreen(
                     ),
                     modifier = Modifier.fillMaxWidth(),
                 ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween,
+                    Column(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(horizontal = 14.dp, vertical = 10.dp),
                     ) {
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier.weight(1f),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            modifier = Modifier.fillMaxWidth(),
                         ) {
-                            Icon(Icons.Default.SystemUpdate, contentDescription = null)
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Text(
-                                text = stringResource(R.string.update_available_title, update.versionName),
-                                style = MaterialTheme.typography.bodyMedium,
-                            )
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                modifier = Modifier.weight(1f),
+                            ) {
+                                Icon(Icons.Default.SystemUpdate, contentDescription = null)
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text(
+                                    text = stringResource(R.string.update_available_title, update.versionName),
+                                    style = MaterialTheme.typography.bodyMedium,
+                                )
+                            }
+                            when (val state = downloadState) {
+                                is UpdateDownloadState.Idle -> {
+                                    TextButton(
+                                        onClick = {
+                                            viewModel.downloadAndInstallUpdate(context, update.apkUrl)
+                                        },
+                                    ) {
+                                        Text(text = stringResource(R.string.update_available_action))
+                                    }
+                                }
+                                is UpdateDownloadState.Downloading -> {
+                                    Text(
+                                        text = stringResource(R.string.update_downloading, (state.progress * 100).toInt()),
+                                        style = MaterialTheme.typography.labelMedium,
+                                    )
+                                }
+                                is UpdateDownloadState.ReadyToInstall -> {
+                                    Button(
+                                        onClick = {
+                                            viewModel.installApkFile(context, state.file)
+                                        },
+                                    ) {
+                                        Text(text = stringResource(R.string.update_install_btn))
+                                    }
+                                }
+                                is UpdateDownloadState.Error -> {
+                                    TextButton(
+                                        onClick = {
+                                            viewModel.downloadAndInstallUpdate(context, update.apkUrl)
+                                        },
+                                    ) {
+                                        Text(text = stringResource(R.string.update_available_action))
+                                    }
+                                }
+                            }
                         }
-                        TextButton(
-                            onClick = {
-                                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(update.apkUrl))
-                                runCatching { context.startActivity(intent) }
-                            },
-                        ) {
-                            Text(text = stringResource(R.string.update_available_action))
+                        if (downloadState is UpdateDownloadState.Downloading) {
+                            val dl = downloadState as UpdateDownloadState.Downloading
+                            Spacer(modifier = Modifier.height(6.dp))
+                            androidx.compose.material3.LinearProgressIndicator(
+                                progress = { dl.progress },
+                                modifier = Modifier.fillMaxWidth(),
+                            )
+                        } else if (downloadState is UpdateDownloadState.Error) {
+                            val err = downloadState as UpdateDownloadState.Error
+                            Spacer(modifier = Modifier.height(4.dp))
+                            Text(
+                                text = stringResource(R.string.update_failed, err.message),
+                                color = MaterialTheme.colorScheme.error,
+                                style = MaterialTheme.typography.labelSmall,
+                            )
                         }
                     }
                 }

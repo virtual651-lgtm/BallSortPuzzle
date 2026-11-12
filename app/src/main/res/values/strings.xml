@@ -13,7 +13,10 @@
     <string name="menu_settings">Ayarlar</string>
 
     <string name="update_available_title">Yeni Güncelleme Mevcut (%1$s)</string>
-    <string name="update_available_action">İndir</string>
+    <string name="update_available_action">İndir ve Güncelle</string>
+    <string name="update_downloading">İndiriliyor… %%%1$d</string>
+    <string name="update_install_btn">Şimdi Yükle</string>
+    <string name="update_failed">İndirme başarısız: %1$s</string>
 
     <string name="level_title">Seviye %1$d</string>
     <string name="daily_level_title">Günlük</string>

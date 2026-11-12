@@ -11,16 +11,20 @@ import com.example.ballsort.data.Achievements
 import com.example.ballsort.data.AppUpdateInfo
 import com.example.ballsort.data.ProgressRepository
 import com.example.ballsort.data.UpdateChecker
+import com.example.ballsort.platform.AppUpdateInstaller
 import com.example.ballsort.platform.LanDuelState
 import com.example.ballsort.platform.LanDuelTransport
+import com.example.ballsort.platform.UpdateDownloadState
 import com.example.ballsort.util.currentEpochDay
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import java.io.File
 import javax.inject.Inject
 
 data class MenuUiState(
@@ -38,12 +42,15 @@ data class MenuUiState(
 class MenuViewModel @Inject constructor(
     progressRepository: ProgressRepository,
     private val updateChecker: UpdateChecker,
+    private val appUpdateInstaller: AppUpdateInstaller,
     private val lanDuelTransport: LanDuelTransport,
 ) : ViewModel() {
 
     val lanDuelState: StateFlow<LanDuelState> = lanDuelTransport.state
 
     private val updateFlow = MutableStateFlow<AppUpdateInfo?>(null)
+    private val _downloadState = MutableStateFlow<UpdateDownloadState>(UpdateDownloadState.Idle)
+    val downloadState: StateFlow<UpdateDownloadState> = _downloadState.asStateFlow()
 
     val uiState: StateFlow<MenuUiState> = combine(
         progressRepository.saveData,
@@ -85,5 +92,20 @@ class MenuViewModel @Inject constructor(
     fun browseLanDuel() = lanDuelTransport.startBrowsing()
     fun connectLanDuel(host: String, port: Int) = lanDuelTransport.connectTo(host, port)
     fun closeLanDuel() = lanDuelTransport.close()
+
+    fun downloadAndInstallUpdate(context: android.content.Context, apkUrl: String) {
+        viewModelScope.launch {
+            appUpdateInstaller.downloadApk(context.applicationContext, apkUrl).collect { state ->
+                _downloadState.value = state
+                if (state is UpdateDownloadState.ReadyToInstall) {
+                    appUpdateInstaller.installApk(context, state.file)
+                }
+            }
+        }
+    }
+
+    fun installApkFile(context: android.content.Context, file: File) {
+        appUpdateInstaller.installApk(context, file)
+    }
 }
 
