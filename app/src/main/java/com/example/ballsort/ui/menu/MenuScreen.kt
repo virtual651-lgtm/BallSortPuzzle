@@ -86,6 +86,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -204,72 +205,27 @@ fun MenuScreen(
                     }
                 }
 
-                Spacer(modifier = Modifier.height(18.dp))
-
-                // 2. HERO BÖLÜMÜ (3 Açılı Cam Tüp + Renkli Damlacıklar)
-                HeroTubesIllustration(isDark = isDark)
-
                 Spacer(modifier = Modifier.height(14.dp))
 
-                // 3D "Renk Tüpleri" Başlığı
-                if (isDark) {
-                    Row(
-                        horizontalArrangement = Arrangement.Center,
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        Text(
-                            text = "Renk ",
-                            style = MaterialTheme.typography.headlineLarge.copy(
-                                fontWeight = FontWeight.Black,
-                                fontSize = 38.sp,
-                                shadow = Shadow(
-                                    color = Color(0xFF070A1E),
-                                    offset = Offset(2f, 4f),
-                                    blurRadius = 6f
-                                )
-                            ),
-                            color = Color.White,
-                        )
-                        Text(
-                            text = "Tüpleri",
-                            style = MaterialTheme.typography.headlineLarge.copy(
-                                fontWeight = FontWeight.Black,
-                                fontSize = 38.sp,
-                                shadow = Shadow(
-                                    color = Color(0xFF8F5A00),
-                                    offset = Offset(2f, 4f),
-                                    blurRadius = 6f
-                                )
-                            ),
-                            color = Color(0xFFFFB300),
-                        )
-                    }
-                } else {
-                    Text(
-                        text = "Renk Tüpleri",
-                        style = MaterialTheme.typography.headlineLarge.copy(
-                            fontWeight = FontWeight.Black,
-                            fontSize = 38.sp,
-                            shadow = Shadow(
-                                color = Color(0xFF1B4332).copy(alpha = 0.30f),
-                                offset = Offset(2f, 4f),
-                                blurRadius = 4f
-                            )
-                        ),
-                        color = Color(0xFF1B4332),
-                        textAlign = TextAlign.Center,
-                    )
-                }
+                // 2. HERO BÖLÜMÜ (3D "Renk Tüpleri" Marka Logosu)
+                Image(
+                    painter = painterResource(id = R.drawable.menu_hero_logo),
+                    contentDescription = stringResource(R.string.app_name),
+                    modifier = Modifier
+                        .size(190.dp)
+                        .clip(RoundedCornerShape(36.dp)),
+                )
 
-                Spacer(modifier = Modifier.height(6.dp))
+                Spacer(modifier = Modifier.height(8.dp))
                 Text(
                     text = stringResource(R.string.menu_subtitle),
                     style = MaterialTheme.typography.bodyMedium,
+                    fontWeight = FontWeight.Medium,
                     color = if (isDark) Color(0xFFA6B0DE) else Color(0xFF2E7D32),
                     textAlign = TextAlign.Center,
                 )
 
-                Spacer(modifier = Modifier.height(28.dp))
+                Spacer(modifier = Modifier.height(24.dp))
 
                 // 3. BÜYÜK 3D "BAŞLA" BUTONU
                 Button(
