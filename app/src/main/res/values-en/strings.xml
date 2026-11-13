@@ -5,7 +5,7 @@
     <string name="menu_continue">Continue (Level %1$d)</string>
     <string name="menu_play">Play (Level %1$d)</string>
     <string name="menu_daily_challenge">Daily Challenge</string>
-    <string name="menu_daily_done">Daily Challenge (Completed)</string>
+    <string name="menu_daily_done">Daily Challenge (Done)</string>
     <string name="menu_duel_bot">Bot Duel</string>
     <string name="menu_duel_lan">Wi-Fi Duel (Same Network)</string>
     <string name="menu_levels">Levels</string>
@@ -74,6 +74,7 @@
     <string name="back">Back</string>
 
     <string name="win_title">Congratulations!</string>
+    <string name="win_ribbon_title">CONGRATULATIONS!</string>
     <string name="win_subtitle">Level %1$d completed</string>
     <string name="win_daily_subtitle">Daily challenge completed</string>
     <string name="win_moves">Moves: %1$d</string>

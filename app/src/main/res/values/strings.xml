@@ -5,7 +5,7 @@
     <string name="menu_continue">Devam Et (Seviye %1$d)</string>
     <string name="menu_play">Oyna (Seviye %1$d)</string>
     <string name="menu_daily_challenge">Günlük Meydan Okuma</string>
-    <string name="menu_daily_done">Günlük Meydan Okuma (Tamamlandı)</string>
+    <string name="menu_daily_done">Günlük Meydan Okuma (Bitti)</string>
     <string name="menu_duel_bot">Bot Düellosu</string>
     <string name="menu_duel_lan">Wi-Fi Düellosu (Aynı Ağ)</string>
     <string name="menu_levels">Seviyeler</string>
@@ -74,6 +74,7 @@
     <string name="back">Geri</string>
 
     <string name="win_title">Tebrikler!</string>
+    <string name="win_ribbon_title">TEBRİKLER!</string>
     <string name="win_subtitle">Seviye %1$d tamamlandı</string>
     <string name="win_daily_subtitle">Günlük meydan okuma tamamlandı</string>
     <string name="win_moves">Hamle: %1$d</string>

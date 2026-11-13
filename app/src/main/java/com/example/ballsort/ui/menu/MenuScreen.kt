@@ -420,21 +420,22 @@ fun MenuScreen(
                 // 6. GÜNLÜK & DÜELLO HIZLI ERİŞİM ŞERİDİ
                 Spacer(modifier = Modifier.height(16.dp))
                 Row(
-                    horizontalArrangement = Arrangement.spacedBy(10.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
                     modifier = Modifier.fillMaxWidth(),
                 ) {
                     FilledTonalButton(
                         onClick = { showBotDifficultyDialog = true },
                         shape = RoundedCornerShape(16.dp),
+                        contentPadding = PaddingValues(horizontal = 6.dp, vertical = 0.dp),
                         modifier = Modifier
                             .weight(1f)
                             .height(44.dp),
                     ) {
-                        Icon(Icons.Default.Bolt, contentDescription = null, modifier = Modifier.size(18.dp))
-                        Spacer(modifier = Modifier.width(6.dp))
+                        Icon(Icons.Default.Bolt, contentDescription = null, modifier = Modifier.size(16.dp))
+                        Spacer(modifier = Modifier.width(4.dp))
                         Text(
                             text = stringResource(R.string.menu_duel_bot),
-                            fontSize = 12.sp,
+                            fontSize = 11.sp,
                             fontWeight = FontWeight.SemiBold,
                             maxLines = 1,
                         )
@@ -442,16 +443,17 @@ fun MenuScreen(
                     FilledTonalButton(
                         onClick = { onPlayLevel(-1) },
                         shape = RoundedCornerShape(16.dp),
+                        contentPadding = PaddingValues(horizontal = 6.dp, vertical = 0.dp),
                         modifier = Modifier
                             .weight(1f)
                             .height(44.dp),
                     ) {
-                        Icon(Icons.Default.CalendarToday, contentDescription = null, modifier = Modifier.size(16.dp))
-                        Spacer(modifier = Modifier.width(6.dp))
+                        Icon(Icons.Default.CalendarToday, contentDescription = null, modifier = Modifier.size(15.dp))
+                        Spacer(modifier = Modifier.width(4.dp))
                         Text(
                             text = if (uiState.isDailyCompleted) stringResource(R.string.menu_daily_done)
                                    else stringResource(R.string.menu_daily_challenge),
-                            fontSize = 12.sp,
+                            fontSize = 11.sp,
                             fontWeight = FontWeight.SemiBold,
                             maxLines = 1,
                         )

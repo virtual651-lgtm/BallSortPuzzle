@@ -284,7 +284,7 @@ fun WinDialog(
                     .padding(horizontal = 24.dp, vertical = 8.dp),
             ) {
                 Text(
-                    text = "✨ ${stringResource(R.string.win_title).uppercase()} ✨",
+                    text = "✨ ${stringResource(R.string.win_ribbon_title)} ✨",
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Black,
                     color = Color(0xFF4E2C00),
