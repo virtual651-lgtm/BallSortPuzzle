@@ -35,6 +35,7 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.example.ballsort.domain.model.BotDifficulty
 import com.example.ballsort.R
 import com.example.ballsort.util.formatDuration
 import kotlinx.coroutines.delay
@@ -50,6 +51,7 @@ fun WinDialog(
     onReplay: () -> Unit,
     onMenu: () -> Unit,
     isDuel: Boolean = false,
+    botDifficulty: BotDifficulty? = null,
 ) {
     var revealedStars by remember(stars) { mutableIntStateOf(0) }
     LaunchedEffect(stars) {
@@ -70,6 +72,7 @@ fun WinDialog(
             ) {
                 Text(
                     text = when {
+                        isDuel && botDifficulty != null -> "${stringResource(botDifficulty.titleRes)} karşısında kazandın! 🏆"
                         isDuel -> stringResource(R.string.win_duel_subtitle)
                         isDaily -> stringResource(R.string.win_daily_subtitle)
                         else -> stringResource(R.string.win_subtitle, levelId)

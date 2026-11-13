@@ -4,6 +4,7 @@
  */
 package com.example.ballsort.domain
 
+import com.example.ballsort.domain.model.BotDifficulty
 import com.example.ballsort.domain.model.LevelConfig
 
 object DifficultyCurve {
@@ -88,19 +89,22 @@ object DifficultyCurve {
     }
 
     /**
-     * Bot düellosu için orta-zor dengede yeni tahta yapılandırması.
+     * Bot düellosu için seçilen zorluğa göre tahta yapılandırması.
      */
-    fun duelConfig(seed: Long = System.currentTimeMillis()): LevelConfig {
-        val colors = 7
-        val capacity = 4
+    fun duelConfig(
+        seed: Long = System.currentTimeMillis(),
+        difficulty: BotDifficulty = BotDifficulty.MEDIUM,
+    ): LevelConfig {
+        val colors = difficulty.colorCount
+        val capacity = difficulty.capacity
         return LevelConfig(
-            levelId = -2,
+            levelId = difficulty.levelId,
             colorCount = colors,
             capacity = capacity,
-            emptyTubes = 2,
+            emptyTubes = difficulty.emptyTubes,
             seed = seed,
-            shuffleMoves = 60 + colors * capacity * 7,
-            minSolutionMoves = (colors * capacity * 0.6).toInt(),
+            shuffleMoves = 50 + colors * capacity * 6,
+            minSolutionMoves = (colors * capacity * 0.55).toInt(),
         )
     }
 }

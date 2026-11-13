@@ -5,6 +5,7 @@
 package com.example.ballsort.ui.game
 
 import androidx.compose.runtime.Immutable
+import com.example.ballsort.domain.model.BotDifficulty
 import com.example.ballsort.domain.model.GameStatus
 import com.example.ballsort.domain.model.Tube
 
@@ -24,6 +25,7 @@ data class GameUiState(
     val isDaily: Boolean = false,
     val isDuel: Boolean = false,
     val isLanDuel: Boolean = false,
+    val botDifficulty: BotDifficulty? = null,
     val botMoves: Int = 0,
     val botTotalMoves: Int = 0,
     val lanOpponentCompleted: Int = 0,

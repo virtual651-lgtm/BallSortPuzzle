@@ -41,6 +41,7 @@ import androidx.compose.material.icons.filled.StarBorder
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
+import com.example.ballsort.domain.model.BotDifficulty
 
 @Composable
 fun GameTopBar(
@@ -52,6 +53,7 @@ fun GameTopBar(
     modifier: Modifier = Modifier,
     maxMoves: Int? = null,
     isDuel: Boolean = false,
+    botDifficulty: BotDifficulty? = null,
     botMoves: Int = 0,
     botTotalMoves: Int = 0,
     isLanDuel: Boolean = false,
@@ -201,9 +203,15 @@ fun GameTopBar(
                         .fillMaxWidth()
                         .padding(start = 16.dp, end = 16.dp, bottom = 8.dp),
                 ) {
+                    val botLabel = if (botDifficulty != null) {
+                        stringResource(R.string.duel_bot_progress_named, stringResource(botDifficulty.titleRes), botMoves, botTotalMoves)
+                    } else {
+                        stringResource(R.string.duel_bot_progress, botMoves, botTotalMoves)
+                    }
                     Text(
-                        text = stringResource(R.string.duel_bot_progress, botMoves, botTotalMoves),
+                        text = botLabel,
                         style = MaterialTheme.typography.labelMedium,
+                        fontWeight = FontWeight.SemiBold,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                     LinearProgressIndicator(

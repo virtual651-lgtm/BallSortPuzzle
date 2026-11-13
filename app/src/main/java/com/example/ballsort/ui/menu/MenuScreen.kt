@@ -73,8 +73,10 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import com.example.ballsort.domain.model.BotDifficulty
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -111,6 +113,7 @@ fun MenuScreen(
     val downloadState by viewModel.downloadState.collectAsStateWithLifecycle()
     val context = LocalContext.current
     var showAchievements by remember { mutableStateOf(false) }
+    var showBotDifficultyDialog by remember { mutableStateOf(false) }
     var showLanLobby by remember { mutableStateOf(false) }
     var dismissedUpdateVersion by remember { mutableStateOf<String?>(null) }
 
@@ -415,17 +418,33 @@ fun MenuScreen(
                 }
 
                 // 6. GÜNLÜK & DÜELLO HIZLI ERİŞİM ŞERİDİ
-                Spacer(modifier = Modifier.height(18.dp))
+                Spacer(modifier = Modifier.height(16.dp))
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(10.dp),
                     modifier = Modifier.fillMaxWidth(),
                 ) {
                     FilledTonalButton(
+                        onClick = { showBotDifficultyDialog = true },
+                        shape = RoundedCornerShape(16.dp),
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(44.dp),
+                    ) {
+                        Icon(Icons.Default.Bolt, contentDescription = null, modifier = Modifier.size(18.dp))
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text(
+                            text = stringResource(R.string.menu_duel_bot),
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            maxLines = 1,
+                        )
+                    }
+                    FilledTonalButton(
                         onClick = { onPlayLevel(-1) },
                         shape = RoundedCornerShape(16.dp),
                         modifier = Modifier
                             .weight(1f)
-                            .height(42.dp),
+                            .height(44.dp),
                     ) {
                         Icon(Icons.Default.CalendarToday, contentDescription = null, modifier = Modifier.size(16.dp))
                         Spacer(modifier = Modifier.width(6.dp))
@@ -433,24 +452,27 @@ fun MenuScreen(
                             text = if (uiState.isDailyCompleted) stringResource(R.string.menu_daily_done)
                                    else stringResource(R.string.menu_daily_challenge),
                             fontSize = 12.sp,
+                            fontWeight = FontWeight.SemiBold,
                             maxLines = 1,
                         )
                     }
-                    FilledTonalButton(
-                        onClick = { showLanLobby = true },
-                        shape = RoundedCornerShape(16.dp),
-                        modifier = Modifier
-                            .weight(1f)
-                            .height(42.dp),
-                    ) {
-                        Icon(Icons.Default.Wifi, contentDescription = null, modifier = Modifier.size(16.dp))
-                        Spacer(modifier = Modifier.width(6.dp))
-                        Text(
-                            text = stringResource(R.string.menu_duel_lan),
-                            fontSize = 12.sp,
-                            maxLines = 1,
-                        )
-                    }
+                }
+                Spacer(modifier = Modifier.height(10.dp))
+                FilledTonalButton(
+                    onClick = { showLanLobby = true },
+                    shape = RoundedCornerShape(16.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(44.dp),
+                ) {
+                    Icon(Icons.Default.Wifi, contentDescription = null, modifier = Modifier.size(18.dp))
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text(
+                        text = stringResource(R.string.menu_duel_lan),
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        maxLines = 1,
+                    )
                 }
 
             uiState.updateInfo?.let { update ->
@@ -867,6 +889,124 @@ fun MenuScreen(
             },
         )
     }
+
+    if (showBotDifficultyDialog) {
+        BotDifficultyDialog(
+            onDismiss = { showBotDifficultyDialog = false },
+            onSelectDifficulty = { diff ->
+                showBotDifficultyDialog = false
+                onPlayLevel(diff.levelId)
+            },
+        )
+    }
+}
+
+@Composable
+private fun BotDifficultyDialog(
+    onDismiss: () -> Unit,
+    onSelectDifficulty: (BotDifficulty) -> Unit,
+) {
+    val isDark = MaterialTheme.colorScheme.background.luminance() < 0.5f
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Bolt,
+                    contentDescription = null,
+                    tint = if (isDark) Color(0xFFFFD54F) else Color(0xFFF57F17),
+                )
+                Text(
+                    text = stringResource(R.string.bot_difficulty_dialog_title),
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold,
+                )
+            }
+        },
+        text = {
+            Column(
+                verticalArrangement = Arrangement.spacedBy(10.dp),
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Text(
+                    text = stringResource(R.string.bot_difficulty_dialog_subtitle),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+
+                BotDifficulty.entries.forEach { diff ->
+                    val (accentColor, containerColor) = when (diff) {
+                        BotDifficulty.EASY -> Color(0xFF4CAF50) to (if (isDark) Color(0xFF1E3A24) else Color(0xFFE8F5E9))
+                        BotDifficulty.MEDIUM -> Color(0xFFFFA000) to (if (isDark) Color(0xFF3E3014) else Color(0xFFFFF8E1))
+                        BotDifficulty.HARD -> Color(0xFFE53935) to (if (isDark) Color(0xFF3E1919) else Color(0xFFFFEBEE))
+                    }
+
+                    Card(
+                        onClick = { onSelectDifficulty(diff) },
+                        shape = RoundedCornerShape(16.dp),
+                        colors = CardDefaults.cardColors(containerColor = containerColor),
+                        border = BorderStroke(1.5.dp, accentColor.copy(alpha = 0.6f)),
+                        modifier = Modifier.fillMaxWidth(),
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 14.dp, vertical = 12.dp),
+                        ) {
+                            Column(modifier = Modifier.weight(1f)) {
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                                ) {
+                                    Text(
+                                        text = stringResource(diff.titleRes),
+                                        style = MaterialTheme.typography.titleMedium,
+                                        fontWeight = FontWeight.Bold,
+                                        color = if (isDark) Color.White else Color(0xFF1C1B1F),
+                                    )
+                                    Surface(
+                                        shape = RoundedCornerShape(8.dp),
+                                        color = accentColor.copy(alpha = 0.2f),
+                                    ) {
+                                        Text(
+                                            text = stringResource(diff.badgeRes),
+                                            style = MaterialTheme.typography.labelSmall,
+                                            fontWeight = FontWeight.Bold,
+                                            color = accentColor,
+                                            modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
+                                        )
+                                    }
+                                }
+                                Spacer(modifier = Modifier.height(2.dp))
+                                Text(
+                                    text = stringResource(diff.descRes),
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                )
+                            }
+                            Icon(
+                                imageVector = Icons.Default.PlayArrow,
+                                contentDescription = null,
+                                tint = accentColor,
+                                modifier = Modifier.size(24.dp),
+                            )
+                        }
+                    }
+                }
+            }
+        },
+        confirmButton = {},
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text(text = stringResource(R.string.cancel))
+            }
+        },
+    )
 }
 
 @Composable

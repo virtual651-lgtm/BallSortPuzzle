@@ -19,6 +19,7 @@ import com.example.ballsort.domain.GameLogic
 import com.example.ballsort.domain.LevelGenerator
 import com.example.ballsort.domain.Solver
 import com.example.ballsort.domain.StarCalculator
+import com.example.ballsort.domain.model.BotDifficulty
 import com.example.ballsort.domain.model.GameStatus
 import com.example.ballsort.domain.model.LevelConfig
 import com.example.ballsort.domain.model.Move
@@ -122,10 +123,12 @@ class GameViewModel @Inject constructor(
         }
     }
 
-    private fun configForRoute(levelId: Int): LevelConfig = when (levelId) {
-        -1 -> DifficultyCurve.dailyConfig(currentEpochDay())
-        -2 -> DifficultyCurve.duelConfig()
-        -3 -> DifficultyCurve.duelConfig((lanDuelTransport.state.value as? LanDuelState.InMatch)?.seed ?: System.currentTimeMillis())
+    private fun configForRoute(levelId: Int): LevelConfig = when {
+        levelId == -1 -> DifficultyCurve.dailyConfig(currentEpochDay())
+        BotDifficulty.isBotDuel(levelId) -> DifficultyCurve.duelConfig(difficulty = BotDifficulty.fromLevelId(levelId))
+        levelId == -3 -> DifficultyCurve.duelConfig(
+            (lanDuelTransport.state.value as? LanDuelState.InMatch)?.seed ?: System.currentTimeMillis()
+        )
         else -> DifficultyCurve.configFor(levelId)
     }
 
@@ -134,12 +137,13 @@ class GameViewModel @Inject constructor(
             _uiState.update { it.copy(isLoading = true) }
             botJob?.cancel()
             val isDaily = levelId == -1
-            val isDuel = levelId == -2
+            val isDuel = BotDifficulty.isBotDuel(levelId)
+            val botDifficulty = if (isDuel) BotDifficulty.fromLevelId(levelId) else null
             val isLanDuel = levelId == -3
             val epochDay = if (isDaily) currentEpochDay() else null
             currentConfig = when {
                 isDaily -> DifficultyCurve.dailyConfig(epochDay!!)
-                isDuel -> DifficultyCurve.duelConfig()
+                isDuel -> DifficultyCurve.duelConfig(difficulty = botDifficulty ?: BotDifficulty.MEDIUM)
                 isLanDuel -> DifficultyCurve.duelConfig(
                     (lanDuelTransport.state.value as? LanDuelState.InMatch)?.seed ?: System.currentTimeMillis()
                 )
@@ -190,7 +194,7 @@ class GameViewModel @Inject constructor(
                     LevelGenerator.generate(currentConfig)
                 }
                 val botTotal = if (isDuel) {
-                    Solver.solve(
+                    val optimalMoves = Solver.solve(
                         tubes = tubes,
                         capacity = currentConfig.capacity,
                         multiMove = true,
@@ -200,6 +204,8 @@ class GameViewModel @Inject constructor(
                         colorCount = currentConfig.colorCount,
                         capacity = currentConfig.capacity,
                     )
+                    val mult = botDifficulty?.moveMultiplier ?: 1.0f
+                    (optimalMoves * mult).toInt().coerceAtLeast(optimalMoves)
                 } else {
                     0
                 }
@@ -210,6 +216,7 @@ class GameViewModel @Inject constructor(
                     isDaily = isDaily,
                     isDuel = isDuel,
                     isLanDuel = isLanDuel,
+                    botDifficulty = botDifficulty,
                     botMoves = 0,
                     botTotalMoves = botTotal,
                     lanOpponentTotal = currentConfig.colorCount,
@@ -533,7 +540,7 @@ class GameViewModel @Inject constructor(
     private fun handleNextLevel() {
         val state = _uiState.value
         val nextId = when {
-            state.isDuel -> -2
+            state.isDuel -> state.levelId
             state.isDaily -> 1
             else -> state.levelId + 1
         }
@@ -546,9 +553,10 @@ class GameViewModel @Inject constructor(
         if (!isScreenActive || !state.isDuel || state.status != GameStatus.Playing || state.isLoading || state.botTotalMoves <= 0) {
             return
         }
+        val delayMs = state.botDifficulty?.delayMs ?: 1_200L
         botJob = viewModelScope.launch {
             while (true) {
-                delay(1_150L)
+                delay(delayMs)
                 val cur = _uiState.value
                 if (!isScreenActive || cur.status != GameStatus.Playing) continue
                 val nextBotMoves = cur.botMoves + 1
