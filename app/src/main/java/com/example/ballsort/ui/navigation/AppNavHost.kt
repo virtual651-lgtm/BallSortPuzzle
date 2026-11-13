@@ -15,8 +15,10 @@ import com.example.ballsort.ui.howto.HowToPlayScreen
 import com.example.ballsort.ui.levels.LevelSelectScreen
 import com.example.ballsort.ui.menu.MenuScreen
 import com.example.ballsort.ui.settings.SettingsScreen
+import com.example.ballsort.ui.splash.SplashScreen
 
 object Routes {
+    const val SPLASH = "splash"
     const val MENU = "menu"
     const val LEVELS = "levels"
     const val GAME = "game/{levelId}"
@@ -32,8 +34,18 @@ fun AppNavHost() {
 
     NavHost(
         navController = navController,
-        startDestination = Routes.MENU,
+        startDestination = Routes.SPLASH,
     ) {
+        composable(Routes.SPLASH) {
+            SplashScreen(
+                onSplashFinished = {
+                    navController.navigate(Routes.MENU) {
+                        popUpTo(Routes.SPLASH) { inclusive = true }
+                    }
+                },
+            )
+        }
+
         composable(Routes.MENU) {
             MenuScreen(
                 onPlayLevel = { levelId -> navController.navigate(Routes.game(levelId)) },
