@@ -930,7 +930,9 @@ private fun BotDifficultyDialog(
         text = {
             Column(
                 verticalArrangement = Arrangement.spacedBy(10.dp),
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .verticalScroll(rememberScrollState()),
             ) {
                 Text(
                     text = stringResource(R.string.bot_difficulty_dialog_subtitle),
@@ -940,6 +942,7 @@ private fun BotDifficultyDialog(
 
                 BotDifficulty.entries.forEach { diff ->
                     val (accentColor, containerColor) = when (diff) {
+                        BotDifficulty.TRAINEE -> Color(0xFF26A69A) to (if (isDark) Color(0xFF143330) else Color(0xFFE0F2F1))
                         BotDifficulty.EASY -> Color(0xFF4CAF50) to (if (isDark) Color(0xFF1E3A24) else Color(0xFFE8F5E9))
                         BotDifficulty.MEDIUM -> Color(0xFFFFA000) to (if (isDark) Color(0xFF3E3014) else Color(0xFFFFF8E1))
                         BotDifficulty.HARD -> Color(0xFFE53935) to (if (isDark) Color(0xFF3E1919) else Color(0xFFFFEBEE))
