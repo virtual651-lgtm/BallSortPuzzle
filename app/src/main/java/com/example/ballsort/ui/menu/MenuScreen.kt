@@ -145,8 +145,7 @@ fun MenuScreen(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(innerPadding)
-                    .verticalScroll(rememberScrollState())
-                    .padding(horizontal = 20.dp, vertical = 12.dp),
+                    .padding(horizontal = 18.dp, vertical = 6.dp),
             ) {
                 // 1. ÜST BAR (Sol: Dairesel Ayarlar, Sağ: Kupa ve Yıldız Kapsülü)
                 Row(
@@ -162,41 +161,41 @@ fun MenuScreen(
                             1.5.dp,
                             if (isDark) Color(0xFF3B4380) else Color(0xFFA5D6A7)
                         ),
-                        modifier = Modifier.size(46.dp),
+                        modifier = Modifier.size(42.dp),
                     ) {
                         Box(contentAlignment = Alignment.Center) {
                             Icon(
                                 imageVector = Icons.Default.Settings,
                                 contentDescription = stringResource(R.string.menu_settings),
                                 tint = if (isDark) Color.White else Color(0xFF1B4332),
-                                modifier = Modifier.size(24.dp),
+                                modifier = Modifier.size(22.dp),
                             )
                         }
                     }
 
                     androidx.compose.material3.Surface(
-                        shape = RoundedCornerShape(24.dp),
+                        shape = RoundedCornerShape(22.dp),
                         color = if (isDark) Color(0xFF15193B) else Color(0xFFE8F5E9),
                         border = BorderStroke(
                             1.5.dp,
                             if (isDark) Color(0xFF3B4380) else Color(0xFFA5D6A7)
                         ),
-                        modifier = Modifier.height(44.dp),
+                        modifier = Modifier.height(40.dp),
                     ) {
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier.padding(horizontal = 14.dp, vertical = 6.dp),
+                            modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp),
                         ) {
                             Icon(
                                 imageVector = Icons.Default.EmojiEvents,
                                 contentDescription = null,
                                 tint = Color(0xFFFFC107),
-                                modifier = Modifier.size(24.dp),
+                                modifier = Modifier.size(22.dp),
                             )
-                            Spacer(modifier = Modifier.width(8.dp))
+                            Spacer(modifier = Modifier.width(6.dp))
                             Text(
                                 text = "${uiState.totalStars}",
-                                fontSize = 18.sp,
+                                fontSize = 16.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = if (isDark) Color.White else Color(0xFF1B4332),
                             )
@@ -204,12 +203,12 @@ fun MenuScreen(
                     }
                 }
 
-                Spacer(modifier = Modifier.height(18.dp))
+                Spacer(modifier = Modifier.weight(0.4f))
 
                 // 2. HERO BÖLÜMÜ (3 Açılı Cam Tüp + Renkli Damlacıklar)
                 HeroTubesIllustration(isDark = isDark)
 
-                Spacer(modifier = Modifier.height(14.dp))
+                Spacer(modifier = Modifier.height(2.dp))
 
                 // 3D "Renk Tüpleri" Başlığı
                 if (isDark) {
@@ -221,11 +220,11 @@ fun MenuScreen(
                             text = "Renk ",
                             style = MaterialTheme.typography.headlineLarge.copy(
                                 fontWeight = FontWeight.Black,
-                                fontSize = 38.sp,
+                                fontSize = 30.sp,
                                 shadow = Shadow(
                                     color = Color(0xFF070A1E),
-                                    offset = Offset(2f, 4f),
-                                    blurRadius = 6f
+                                    offset = Offset(2f, 3f),
+                                    blurRadius = 5f
                                 )
                             ),
                             color = Color.White,
@@ -234,11 +233,11 @@ fun MenuScreen(
                             text = "Tüpleri",
                             style = MaterialTheme.typography.headlineLarge.copy(
                                 fontWeight = FontWeight.Black,
-                                fontSize = 38.sp,
+                                fontSize = 30.sp,
                                 shadow = Shadow(
                                     color = Color(0xFF8F5A00),
-                                    offset = Offset(2f, 4f),
-                                    blurRadius = 6f
+                                    offset = Offset(2f, 3f),
+                                    blurRadius = 5f
                                 )
                             ),
                             color = Color(0xFFFFB300),
@@ -249,10 +248,10 @@ fun MenuScreen(
                         text = "Renk Tüpleri",
                         style = MaterialTheme.typography.headlineLarge.copy(
                             fontWeight = FontWeight.Black,
-                            fontSize = 38.sp,
+                            fontSize = 30.sp,
                             shadow = Shadow(
                                 color = Color(0xFF1B4332).copy(alpha = 0.30f),
-                                offset = Offset(2f, 4f),
+                                offset = Offset(2f, 3f),
                                 blurRadius = 4f
                             )
                         ),
@@ -261,27 +260,27 @@ fun MenuScreen(
                     )
                 }
 
-                Spacer(modifier = Modifier.height(6.dp))
                 Text(
                     text = stringResource(R.string.menu_subtitle),
-                    style = MaterialTheme.typography.bodyMedium,
+                    style = MaterialTheme.typography.bodySmall,
+                    fontSize = 12.sp,
                     color = if (isDark) Color(0xFFA6B0DE) else Color(0xFF2E7D32),
                     textAlign = TextAlign.Center,
                 )
 
-                Spacer(modifier = Modifier.height(28.dp))
+                Spacer(modifier = Modifier.weight(0.6f))
 
                 // 3. BÜYÜK 3D "BAŞLA" BUTONU
                 Button(
                     onClick = { onPlayLevel(uiState.nextLevelId) },
                     contentPadding = PaddingValues(0.dp),
-                    shape = RoundedCornerShape(32.dp),
+                    shape = RoundedCornerShape(28.dp),
                     colors = androidx.compose.material3.ButtonDefaults.buttonColors(
                         containerColor = Color.Transparent
                     ),
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(64.dp),
+                        .height(52.dp),
                 ) {
                     val btnGradient = if (isDark) {
                         listOf(Color(0xFFFFC107), Color(0xFFFFA000))
@@ -296,9 +295,9 @@ fun MenuScreen(
                             .fillMaxSize()
                             .background(
                                 brush = Brush.verticalGradient(btnGradient),
-                                shape = RoundedCornerShape(32.dp),
+                                shape = RoundedCornerShape(28.dp),
                             )
-                            .border(BorderStroke(2.dp, btnBorder), shape = RoundedCornerShape(32.dp)),
+                            .border(BorderStroke(2.dp, btnBorder), shape = RoundedCornerShape(28.dp)),
                     ) {
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
@@ -307,17 +306,17 @@ fun MenuScreen(
                             Box(
                                 contentAlignment = Alignment.Center,
                                 modifier = Modifier
-                                    .size(36.dp)
+                                    .size(30.dp)
                                     .background(Color.White.copy(alpha = 0.28f), CircleShape),
                             ) {
                                 Icon(
                                     imageVector = Icons.Default.PlayArrow,
                                     contentDescription = null,
                                     tint = Color.White,
-                                    modifier = Modifier.size(26.dp),
+                                    modifier = Modifier.size(22.dp),
                                 )
                             }
-                            Spacer(modifier = Modifier.width(12.dp))
+                            Spacer(modifier = Modifier.width(10.dp))
                             Text(
                                 text = if (uiState.hasInProgress) {
                                     stringResource(R.string.menu_continue, uiState.nextLevelId)
@@ -325,14 +324,14 @@ fun MenuScreen(
                                     stringResource(R.string.menu_play_short)
                                 },
                                 color = Color.White,
-                                fontSize = 24.sp,
+                                fontSize = 21.sp,
                                 fontWeight = FontWeight.Black,
                             )
                         }
                     }
                 }
 
-                Spacer(modifier = Modifier.height(26.dp))
+                Spacer(modifier = Modifier.weight(0.6f))
 
                 // 4. 3'LÜ DAİRESEL NAVİGASYON (Seviyeler, Başarılar, Tema)
                 Row(
@@ -360,65 +359,9 @@ fun MenuScreen(
                     )
                 }
 
-                Spacer(modifier = Modifier.height(26.dp))
+                Spacer(modifier = Modifier.weight(0.6f))
 
-                // 5. NASIL OYNANIR? ALT KART
-                androidx.compose.material3.Surface(
-                    onClick = onOpenHowTo,
-                    shape = RoundedCornerShape(20.dp),
-                    color = if (isDark) Color(0xFF15193B) else Color(0xFFE8F5E9),
-                    border = BorderStroke(
-                        1.5.dp,
-                        if (isDark) Color(0xFF282F66) else Color(0xFFC8E6C9)
-                    ),
-                    modifier = Modifier.fillMaxWidth(),
-                ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 14.dp),
-                    ) {
-                        Box(
-                            contentAlignment = Alignment.Center,
-                            modifier = Modifier
-                                .size(46.dp)
-                                .background(
-                                    if (isDark) Color(0xFF232959) else Color(0xFFC8E6C9),
-                                    CircleShape
-                                ),
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Lightbulb,
-                                contentDescription = null,
-                                tint = Color(0xFFFFC107),
-                                modifier = Modifier.size(26.dp),
-                            )
-                        }
-                        Spacer(modifier = Modifier.width(14.dp))
-                        Column(modifier = Modifier.weight(1f)) {
-                            Text(
-                                text = stringResource(R.string.menu_howto),
-                                fontWeight = FontWeight.Bold,
-                                style = MaterialTheme.typography.titleMedium,
-                                color = if (isDark) Color.White else Color(0xFF1B4332),
-                            )
-                            Spacer(modifier = Modifier.height(2.dp))
-                            Text(
-                                text = stringResource(R.string.menu_howto_hint),
-                                style = MaterialTheme.typography.bodySmall,
-                                color = if (isDark) Color(0xFFA6B0DE) else Color(0xFF2E7D32),
-                            )
-                        }
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowForwardIos,
-                            contentDescription = null,
-                            tint = if (isDark) Color(0xFFA6B0DE) else Color(0xFF2E7D32),
-                            modifier = Modifier.size(16.dp),
-                        )
-                    }
-                }
-
-                // 6. GÜNLÜK & DÜELLO HIZLI ERİŞİM ŞERİDİ
-                Spacer(modifier = Modifier.height(16.dp))
+                // 5. MOD VE EYLEM BUTONLARI (2x2 Düzen: Bot Düellosu & Wi-Fi Düello / Günlük & Nasıl Oynanır)
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                     modifier = Modifier.fillMaxWidth(),
@@ -429,7 +372,7 @@ fun MenuScreen(
                         contentPadding = PaddingValues(horizontal = 6.dp, vertical = 0.dp),
                         modifier = Modifier
                             .weight(1f)
-                            .height(44.dp),
+                            .height(42.dp),
                     ) {
                         Icon(Icons.Default.Bolt, contentDescription = null, modifier = Modifier.size(16.dp))
                         Spacer(modifier = Modifier.width(4.dp))
@@ -441,12 +384,37 @@ fun MenuScreen(
                         )
                     }
                     FilledTonalButton(
+                        onClick = { showLanLobby = true },
+                        shape = RoundedCornerShape(16.dp),
+                        contentPadding = PaddingValues(horizontal = 6.dp, vertical = 0.dp),
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(42.dp),
+                    ) {
+                        Icon(Icons.Default.Wifi, contentDescription = null, modifier = Modifier.size(16.dp))
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(
+                            text = stringResource(R.string.menu_duel_lan_short),
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            maxLines = 1,
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(6.dp))
+
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
+                    FilledTonalButton(
                         onClick = { onPlayLevel(-1) },
                         shape = RoundedCornerShape(16.dp),
                         contentPadding = PaddingValues(horizontal = 6.dp, vertical = 0.dp),
                         modifier = Modifier
                             .weight(1f)
-                            .height(44.dp),
+                            .height(42.dp),
                     ) {
                         Icon(Icons.Default.CalendarToday, contentDescription = null, modifier = Modifier.size(15.dp))
                         Spacer(modifier = Modifier.width(4.dp))
@@ -458,24 +426,26 @@ fun MenuScreen(
                             maxLines = 1,
                         )
                     }
+                    FilledTonalButton(
+                        onClick = onOpenHowTo,
+                        shape = RoundedCornerShape(16.dp),
+                        contentPadding = PaddingValues(horizontal = 6.dp, vertical = 0.dp),
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(42.dp),
+                    ) {
+                        Icon(Icons.Default.Lightbulb, contentDescription = null, modifier = Modifier.size(16.dp))
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(
+                            text = stringResource(R.string.menu_howto),
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            maxLines = 1,
+                        )
+                    }
                 }
-                Spacer(modifier = Modifier.height(10.dp))
-                FilledTonalButton(
-                    onClick = { showLanLobby = true },
-                    shape = RoundedCornerShape(16.dp),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(44.dp),
-                ) {
-                    Icon(Icons.Default.Wifi, contentDescription = null, modifier = Modifier.size(18.dp))
-                    Spacer(modifier = Modifier.width(6.dp))
-                    Text(
-                        text = stringResource(R.string.menu_duel_lan),
-                        fontSize = 12.sp,
-                        fontWeight = FontWeight.SemiBold,
-                        maxLines = 1,
-                    )
-                }
+
+                Spacer(modifier = Modifier.weight(0.3f))
 
             uiState.updateInfo?.let { update ->
                 Spacer(modifier = Modifier.height(24.dp))
@@ -1020,7 +990,7 @@ private fun HeroTubesIllustration(isDark: Boolean) {
         contentAlignment = Alignment.Center,
         modifier = Modifier
             .fillMaxWidth()
-            .height(160.dp),
+            .height(115.dp),
     ) {
         // Renkli Damlacıklar & Işık Parıltısı
         Canvas(modifier = Modifier.fillMaxSize()) {
@@ -1044,17 +1014,17 @@ private fun HeroTubesIllustration(isDark: Boolean) {
             )
 
             // Sıçrayan renkli damlacıklar (kırmızı, mavi, sarı, yeşil)
-            drawCircle(Color(0xFFE53935), radius = 6.dp.toPx(), center = Offset(cx - 95.dp.toPx(), cy - 35.dp.toPx()))
-            drawCircle(Color(0xFF1E88E5), radius = 5.dp.toPx(), center = Offset(cx + 90.dp.toPx(), cy - 40.dp.toPx()))
-            drawCircle(Color(0xFFFDD835), radius = 7.dp.toPx(), center = Offset(cx - 75.dp.toPx(), cy - 60.dp.toPx()))
-            drawCircle(Color(0xFF43A047), radius = 5.5f.dp.toPx(), center = Offset(cx + 80.dp.toPx(), cy - 15.dp.toPx()))
-            drawCircle(Color(0xFF00ACC1), radius = 4.5f.dp.toPx(), center = Offset(cx - 50.dp.toPx(), cy - 68.dp.toPx()))
-            drawCircle(Color(0xFFFB8C00), radius = 5.dp.toPx(), center = Offset(cx + 55.dp.toPx(), cy - 65.dp.toPx()))
+            drawCircle(Color(0xFFE53935), radius = 5.dp.toPx(), center = Offset(cx - 75.dp.toPx(), cy - 25.dp.toPx()))
+            drawCircle(Color(0xFF1E88E5), radius = 4.5f.dp.toPx(), center = Offset(cx + 70.dp.toPx(), cy - 30.dp.toPx()))
+            drawCircle(Color(0xFFFDD835), radius = 5.5f.dp.toPx(), center = Offset(cx - 55.dp.toPx(), cy - 45.dp.toPx()))
+            drawCircle(Color(0xFF43A047), radius = 4.5f.dp.toPx(), center = Offset(cx + 60.dp.toPx(), cy - 10.dp.toPx()))
+            drawCircle(Color(0xFF00ACC1), radius = 3.5f.dp.toPx(), center = Offset(cx - 35.dp.toPx(), cy - 50.dp.toPx()))
+            drawCircle(Color(0xFFFB8C00), radius = 4.dp.toPx(), center = Offset(cx + 40.dp.toPx(), cy - 48.dp.toPx()))
         }
 
         // 3 Açılı Cam Tüp
         Row(
-            horizontalArrangement = Arrangement.spacedBy(16.dp),
+            horizontalArrangement = Arrangement.spacedBy(14.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             // Sol Tüp (-9 derece eğik)
@@ -1085,14 +1055,14 @@ private fun CartoonTube(
     colors: List<Color>,
     isDark: Boolean,
 ) {
-    val shape = RoundedCornerShape(topStart = 6.dp, topEnd = 6.dp, bottomStart = 18.dp, bottomEnd = 18.dp)
+    val shape = RoundedCornerShape(topStart = 5.dp, topEnd = 5.dp, bottomStart = 15.dp, bottomEnd = 15.dp)
 
     Box(
         contentAlignment = Alignment.BottomCenter,
         modifier = Modifier
             .rotate(rotation)
-            .width(38.dp)
-            .height(96.dp)
+            .width(32.dp)
+            .height(76.dp)
             .clip(shape)
             .background(
                 brush = Brush.verticalGradient(
@@ -1104,19 +1074,19 @@ private fun CartoonTube(
             )
             .border(
                 BorderStroke(
-                    2.dp,
+                    1.5.dp,
                     if (isDark) Color.White.copy(alpha = 0.55f) else Color(0xFF2E7D32).copy(alpha = 0.40f),
                 ),
                 shape = shape,
             )
-            .padding(bottom = 6.dp),
+            .padding(bottom = 5.dp),
     ) {
         Column(
-            verticalArrangement = Arrangement.spacedBy(3.dp),
+            verticalArrangement = Arrangement.spacedBy(2.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             colors.forEach { ballColor ->
-                GlossyBall(ballColor = ballColor, size = 26.dp)
+                GlossyBall(ballColor = ballColor, size = 21.dp)
             }
         }
     }
@@ -1135,8 +1105,8 @@ private fun GlossyBall(ballColor: Color, size: Dp) {
                         ballColor.copy(alpha = 0.85f),
                         Color.Black.copy(alpha = 0.45f),
                     ),
-                    center = Offset(20f, 20f),
-                    radius = 35f,
+                    center = Offset(16f, 16f),
+                    radius = 28f,
                 ),
                 shape = CircleShape,
             )
@@ -1153,7 +1123,7 @@ private fun CircularMenuItem(
 ) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(6.dp),
+        verticalArrangement = Arrangement.spacedBy(4.dp),
     ) {
         androidx.compose.material3.Surface(
             onClick = onClick,
@@ -1163,20 +1133,20 @@ private fun CircularMenuItem(
                 1.5.dp,
                 if (isDark) Color(0xFF3B4380) else Color(0xFFA5D6A7),
             ),
-            modifier = Modifier.size(62.dp),
+            modifier = Modifier.size(50.dp),
         ) {
             Box(contentAlignment = Alignment.Center) {
                 Icon(
                     imageVector = icon,
                     contentDescription = label,
                     tint = if (isDark) Color(0xFFFFC107) else Color(0xFF1B4332),
-                    modifier = Modifier.size(28.dp),
+                    modifier = Modifier.size(24.dp),
                 )
             }
         }
         Text(
             text = label,
-            fontSize = 13.sp,
+            fontSize = 11.sp,
             fontWeight = FontWeight.Bold,
             color = if (isDark) Color(0xFFA6B0DE) else Color(0xFF1B4332),
         )

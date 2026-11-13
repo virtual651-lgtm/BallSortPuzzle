@@ -213,13 +213,15 @@ fun WinDialog(
                                 fontWeight = FontWeight.Bold,
                                 color = Color.White,
                                 letterSpacing = 0.5.sp,
+                                maxLines = 1,
+                                softWrap = false,
                             )
                         }
                     }
 
                     Spacer(modifier = Modifier.height(10.dp))
 
-                    // İkincil Butonlar (Tekrar Oyna & Ana Menü)
+                    // İkincil Butonlar (Tekrar Oyna & Ana Menü) - Tek satıra tam sığacak şekilde optimize edildi
                     Row(
                         horizontalArrangement = Arrangement.spacedBy(10.dp),
                         modifier = Modifier.fillMaxWidth(),
@@ -228,20 +230,23 @@ fun WinDialog(
                             onClick = onReplay,
                             shape = RoundedCornerShape(18.dp),
                             border = BorderStroke(1.5.dp, if (isDark) Color(0xFF4C579E) else Color(0xFFB0BEC5)),
+                            contentPadding = PaddingValues(horizontal = 6.dp, vertical = 0.dp),
                             modifier = Modifier
                                 .weight(1f)
-                                .height(44.dp),
+                                .height(46.dp),
                         ) {
                             Icon(
                                 imageVector = Icons.Filled.Refresh,
                                 contentDescription = null,
-                                modifier = Modifier.size(18.dp),
+                                modifier = Modifier.size(17.dp),
                             )
-                            Spacer(modifier = Modifier.width(6.dp))
+                            Spacer(modifier = Modifier.width(4.dp))
                             Text(
                                 text = stringResource(R.string.win_replay),
-                                style = MaterialTheme.typography.labelLarge,
-                                fontWeight = FontWeight.SemiBold,
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Bold,
+                                maxLines = 1,
+                                softWrap = false,
                             )
                         }
 
@@ -249,20 +254,23 @@ fun WinDialog(
                             onClick = onMenu,
                             shape = RoundedCornerShape(18.dp),
                             border = BorderStroke(1.5.dp, if (isDark) Color(0xFF4C579E) else Color(0xFFB0BEC5)),
+                            contentPadding = PaddingValues(horizontal = 6.dp, vertical = 0.dp),
                             modifier = Modifier
                                 .weight(1f)
-                                .height(44.dp),
+                                .height(46.dp),
                         ) {
                             Icon(
                                 imageVector = Icons.Filled.Home,
                                 contentDescription = null,
-                                modifier = Modifier.size(18.dp),
+                                modifier = Modifier.size(17.dp),
                             )
-                            Spacer(modifier = Modifier.width(6.dp))
+                            Spacer(modifier = Modifier.width(4.dp))
                             Text(
                                 text = stringResource(R.string.win_menu),
-                                style = MaterialTheme.typography.labelLarge,
-                                fontWeight = FontWeight.SemiBold,
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Bold,
+                                maxLines = 1,
+                                softWrap = false,
                             )
                         }
                     }

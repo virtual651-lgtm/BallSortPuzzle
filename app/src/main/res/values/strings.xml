@@ -8,6 +8,7 @@
     <string name="menu_daily_done">Günlük Meydan Okuma (Bitti)</string>
     <string name="menu_duel_bot">Bot Düellosu</string>
     <string name="menu_duel_lan">Wi-Fi Düellosu (Aynı Ağ)</string>
+    <string name="menu_duel_lan_short">Wi-Fi Düello</string>
     <string name="menu_levels">Seviyeler</string>
     <string name="menu_howto">Nasıl Oynanır?</string>
     <string name="menu_settings">Ayarlar</string>

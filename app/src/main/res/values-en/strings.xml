@@ -8,6 +8,7 @@
     <string name="menu_daily_done">Daily Challenge (Done)</string>
     <string name="menu_duel_bot">Bot Duel</string>
     <string name="menu_duel_lan">Wi-Fi Duel (Same Network)</string>
+    <string name="menu_duel_lan_short">Wi-Fi Duel</string>
     <string name="menu_levels">Levels</string>
     <string name="menu_howto">How to Play</string>
     <string name="menu_settings">Settings</string>
