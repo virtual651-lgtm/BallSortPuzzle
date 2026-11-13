@@ -1,7 +1,7 @@
 {
-  "latestVersionCode": 3,
-  "versionName": "1.0.2",
+  "latestVersionCode": 4,
+  "versionName": "1.0.3",
   "apkUrl": "https://github.com/virtual651-lgtm/BallSortPuzzle/releases/latest/download/app-release.apk",
-  "notes": "Toplam 200 bölüm, uygulama içi indirme ve geri bildirim desteği"
+  "notes": "Tema ve dil geçişlerindeki yanıp sönme düzeltildi, ilk açılış rehberi ve kararlılık iyileştirmeleri"
 }
 
