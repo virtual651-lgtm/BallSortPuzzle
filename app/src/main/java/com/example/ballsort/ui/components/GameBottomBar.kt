@@ -37,6 +37,14 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.example.ballsort.R
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Box
+import androidx.compose.material.icons.filled.Shuffle
+import androidx.compose.ui.graphics.luminance
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.sp
+
 @Composable
 fun GameBottomBar(
     canUndo: Boolean,
@@ -48,6 +56,8 @@ fun GameBottomBar(
     onAddTube: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val isDark = MaterialTheme.colorScheme.background.luminance() < 0.5f
+
     Surface(
         color = Color.Transparent,
         modifier = modifier.fillMaxWidth(),
@@ -57,79 +67,116 @@ fun GameBottomBar(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 12.dp, vertical = 10.dp),
+                .padding(horizontal = 16.dp, vertical = 14.dp),
         ) {
-            BottomActionButton(
+            // Geri Al (Undo) + Rozet "3"
+            CircularGameAction(
                 icon = Icons.AutoMirrored.Filled.Undo,
                 label = stringResource(R.string.action_undo),
+                badgeText = "3",
                 enabled = canUndo,
+                isDark = isDark,
                 onClick = onUndo,
             )
-            BottomActionButton(
-                icon = Icons.Default.Refresh,
-                label = stringResource(R.string.action_restart),
-                enabled = true,
-                onClick = onRestart,
-            )
-            BottomActionButton(
+
+            // İpucu (Hint / Ampul) + Rozet "3"
+            CircularGameAction(
                 icon = Icons.Default.Lightbulb,
                 label = stringResource(R.string.action_hint),
+                badgeText = "3",
                 enabled = !isSolvingHint,
                 loading = isSolvingHint,
+                isDark = isDark,
                 onClick = onHint,
             )
-            BottomActionButton(
-                icon = Icons.Default.AddBox,
-                label = stringResource(R.string.action_add_tube),
-                enabled = extraTubeAvailable,
-                onClick = onAddTube,
+
+            // Karıştır / Sıfırla (Shuffle / Restart)
+            CircularGameAction(
+                icon = Icons.Default.Shuffle,
+                label = stringResource(R.string.action_restart),
+                badgeText = null,
+                enabled = true,
+                isDark = isDark,
+                onClick = onRestart,
             )
+
+            // Ekstra Tüp (+1)
+            if (extraTubeAvailable) {
+                CircularGameAction(
+                    icon = Icons.Default.AddBox,
+                    label = stringResource(R.string.action_add_tube),
+                    badgeText = "+1",
+                    enabled = true,
+                    isDark = isDark,
+                    onClick = onAddTube,
+                )
+            }
         }
     }
 }
 
 @Composable
-private fun BottomActionButton(
+private fun CircularGameAction(
     icon: ImageVector,
     label: String,
+    badgeText: String?,
     enabled: Boolean,
+    isDark: Boolean,
     loading: Boolean = false,
     onClick: () -> Unit,
 ) {
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.defaultMinSize(minWidth = 56.dp, minHeight = 48.dp),
-    ) {
+    val circleBg = if (isDark) Color(0xFF1D2254) else Color(0xFFC8E6C9)
+    val circleBorder = if (isDark) Color(0xFF3B4380) else Color(0xFFA5D6A7)
+    val iconColor = if (isDark) Color.White else Color(0xFF1B4332)
+    val badgeBg = if (isDark) Color(0xFFFF9800) else Color(0xFF2E7D32)
+
+    Box(contentAlignment = Alignment.BottomEnd) {
         Surface(
+            onClick = onClick,
+            enabled = enabled,
             shape = CircleShape,
-            color = Color.Transparent,
-            border = BorderStroke(1.dp, MaterialTheme.colorScheme.onSurface.copy(alpha = if (enabled) 0.14f else 0.05f)),
+            color = if (enabled) circleBg else circleBg.copy(alpha = 0.45f),
+            border = BorderStroke(
+                1.5.dp,
+                if (enabled) circleBorder else circleBorder.copy(alpha = 0.35f),
+            ),
+            modifier = Modifier.size(58.dp),
         ) {
-            FilledTonalIconButton(
-                onClick = onClick,
-                enabled = enabled,
-                colors = IconButtonDefaults.filledTonalIconButtonColors(
-                    containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.78f),
-                ),
-                modifier = Modifier.size(50.dp),
-            ) {
+            Box(contentAlignment = Alignment.Center) {
                 if (loading) {
                     CircularProgressIndicator(
                         strokeWidth = 2.dp,
-                        modifier = Modifier.size(20.dp),
+                        color = iconColor,
+                        modifier = Modifier.size(22.dp),
                     )
                 } else {
-                    Icon(imageVector = icon, contentDescription = label)
+                    Icon(
+                        imageVector = icon,
+                        contentDescription = label,
+                        tint = if (enabled) iconColor else iconColor.copy(alpha = 0.4f),
+                        modifier = Modifier.size(26.dp),
+                    )
                 }
             }
         }
-        Spacer(modifier = Modifier.height(4.dp))
-        Text(
-            text = label,
-            style = MaterialTheme.typography.labelSmall,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-        )
+
+        // Kalan Sayaç Rozeti
+        if (badgeText != null && enabled) {
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier
+                    .size(20.dp)
+                    .background(badgeBg, CircleShape)
+                    .border(1.dp, Color.White.copy(alpha = 0.7f), CircleShape),
+            ) {
+                Text(
+                    text = badgeText,
+                    fontSize = 11.sp,
+                    fontWeight = FontWeight.Black,
+                    color = Color.White,
+                )
+            }
+        }
     }
 }
 

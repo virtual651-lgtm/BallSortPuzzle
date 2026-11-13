@@ -11,6 +11,10 @@
     <string name="menu_levels">Levels</string>
     <string name="menu_howto">How to Play</string>
     <string name="menu_settings">Settings</string>
+    <string name="menu_play_short">Play</string>
+    <string name="menu_achievements_tab">Trophies</string>
+    <string name="menu_theme_tab">Theme</string>
+    <string name="menu_howto_hint">Sort the same color balls into each tube.</string>
 
     <string name="update_available_title">New Update Available (%1$s)</string>
     <string name="update_available_action">Update</string>

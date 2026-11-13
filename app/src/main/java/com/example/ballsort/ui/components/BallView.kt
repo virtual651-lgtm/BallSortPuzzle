@@ -69,16 +69,33 @@ fun DrawScope.drawBall(
             drawCircle(
                 brush = Brush.radialGradient(
                     colors = listOf(lighter, color, darker),
-                    center = Offset(center.x - radius * 0.28f, center.y - radius * 0.28f),
+                    center = Offset(center.x - radius * 0.30f, center.y - radius * 0.30f),
                     radius = radius * 1.35f,
                 ),
                 radius = radius,
                 center = center,
             )
+            // Yumuşak ışık parıltısı
             drawCircle(
-                color = Color.White.copy(alpha = 0.42f),
-                radius = radius * 0.22f,
-                center = Offset(center.x - radius * 0.34f, center.y - radius * 0.34f),
+                color = Color.White.copy(alpha = 0.55f),
+                radius = radius * 0.26f,
+                center = Offset(center.x - radius * 0.32f, center.y - radius * 0.32f),
+            )
+            // Keskin parlak nokta (Royal Kingdom / Casual Game stili)
+            drawCircle(
+                color = Color.White.copy(alpha = 0.90f),
+                radius = radius * 0.11f,
+                center = Offset(center.x - radius * 0.35f, center.y - radius * 0.35f),
+            )
+            // Alt kenar ortam yansıması
+            drawCircle(
+                brush = Brush.radialGradient(
+                    colors = listOf(Color.Transparent, Color.White.copy(alpha = 0.20f)),
+                    center = Offset(center.x + radius * 0.25f, center.y + radius * 0.25f),
+                    radius = radius * 0.85f,
+                ),
+                radius = radius,
+                center = center,
             )
         }
         BallSkin.NEON -> {

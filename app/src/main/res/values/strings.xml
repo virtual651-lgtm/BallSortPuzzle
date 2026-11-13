@@ -11,6 +11,10 @@
     <string name="menu_levels">Seviyeler</string>
     <string name="menu_howto">Nasıl Oynanır?</string>
     <string name="menu_settings">Ayarlar</string>
+    <string name="menu_play_short">Başla</string>
+    <string name="menu_achievements_tab">Başarılar</string>
+    <string name="menu_theme_tab">Tema</string>
+    <string name="menu_howto_hint">Aynı renkteki topları aynı tüpte topla.</string>
 
     <string name="update_available_title">Yeni Güncelleme Mevcut (%1$s)</string>
     <string name="update_available_action">Güncelle</string>

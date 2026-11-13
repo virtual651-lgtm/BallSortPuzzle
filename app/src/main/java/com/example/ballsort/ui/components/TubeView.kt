@@ -50,6 +50,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onGloballyPositioned
@@ -145,8 +146,9 @@ fun TubeView(
     )
 
     val resolvedTubeSkin = TubeSkin.fromId(tubeSkin)
+    val isDark = MaterialTheme.colorScheme.background.luminance() < 0.5f
     val defaultBorderColor = when (resolvedTubeSkin) {
-        TubeSkin.GLASS -> MaterialTheme.colorScheme.onSurface.copy(alpha = 0.35f)
+        TubeSkin.GLASS -> if (isDark) Color.White.copy(alpha = 0.55f) else Color(0xFF2E7D32).copy(alpha = 0.40f)
         TubeSkin.DARK -> Color(0xFF607D8B).copy(alpha = 0.75f)
         TubeSkin.WOOD -> Color(0xFF8D6E63)
         TubeSkin.GOLD -> Color(0xFFD4AF37)
@@ -319,8 +321,8 @@ fun TubeView(
                     .background(
                         brush = Brush.verticalGradient(
                             colors = listOf(
-                                Color.White.copy(alpha = 0.32f),
-                                Color.White.copy(alpha = 0.08f),
+                                Color.White.copy(alpha = 0.55f),
+                                Color.White.copy(alpha = 0.18f),
                                 Color.Transparent,
                             ),
                         ),

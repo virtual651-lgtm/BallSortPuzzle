@@ -17,6 +17,8 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.luminance
 
+import androidx.compose.ui.graphics.Path
+
 @Composable
 fun GameBackdrop(
     modifier: Modifier = Modifier,
@@ -25,20 +27,35 @@ fun GameBackdrop(
     val isDark = MaterialTheme.colorScheme.background.luminance() < 0.5f
     val gradientColors = if (isDark) {
         listOf(
-            Color(0xFF0B1022),
-            Color(0xFF151E3A),
-            Color(0xFF1C1736),
+            Color(0xFF0C1033),
+            Color(0xFF141847),
+            Color(0xFF1B1E54),
         )
     } else {
         listOf(
-            Color(0xFFEAF2FF),
-            Color(0xFFF5F3FF),
-            Color(0xFFFFF2F8),
+            Color(0xFFF3FAF4),
+            Color(0xFFE9F7EC),
+            Color(0xFFDEF2E3),
         )
     }
 
-    val glowA = if (isDark) Color(0xFF4F8DFF).copy(alpha = 0.14f) else Color(0xFF5C8EFF).copy(alpha = 0.12f)
-    val glowB = if (isDark) Color(0xFFB36BFF).copy(alpha = 0.12f) else Color(0xFFC77DFF).copy(alpha = 0.10f)
+    val bokehColor = if (isDark) {
+        Color(0xFF333A8A).copy(alpha = 0.22f)
+    } else {
+        Color(0xFFA5D6A7).copy(alpha = 0.32f)
+    }
+
+    val waveBack = if (isDark) {
+        Color(0xFF1E235E).copy(alpha = 0.45f)
+    } else {
+        Color(0xFF81C784).copy(alpha = 0.35f)
+    }
+
+    val waveFront = if (isDark) {
+        Color(0xFF16194A).copy(alpha = 0.75f)
+    } else {
+        Color(0xFF2E7D32).copy(alpha = 0.65f)
+    }
 
     Box(
         modifier = modifier
@@ -46,24 +63,53 @@ fun GameBackdrop(
             .background(Brush.verticalGradient(gradientColors)),
     ) {
         Canvas(modifier = Modifier.fillMaxSize()) {
+            val w = size.width
+            val h = size.height
+
+            // Yumuşak Bokeh Işık Baloncukları
             drawCircle(
-                brush = Brush.radialGradient(
-                    colors = listOf(glowA, Color.Transparent),
-                    center = Offset(size.width * 0.18f, size.height * 0.16f),
-                    radius = size.maxDimension * 0.45f,
-                ),
-                radius = size.maxDimension * 0.45f,
-                center = Offset(size.width * 0.18f, size.height * 0.16f),
+                color = bokehColor,
+                radius = w * 0.28f,
+                center = Offset(w * 0.12f, h * 0.20f),
             )
             drawCircle(
-                brush = Brush.radialGradient(
-                    colors = listOf(glowB, Color.Transparent),
-                    center = Offset(size.width * 0.85f, size.height * 0.78f),
-                    radius = size.maxDimension * 0.50f,
-                ),
-                radius = size.maxDimension * 0.50f,
-                center = Offset(size.width * 0.85f, size.height * 0.78f),
+                color = bokehColor.copy(alpha = bokehColor.alpha * 0.7f),
+                radius = w * 0.38f,
+                center = Offset(w * 0.88f, h * 0.35f),
             )
+            drawCircle(
+                color = bokehColor.copy(alpha = bokehColor.alpha * 0.5f),
+                radius = w * 0.22f,
+                center = Offset(w * 0.25f, h * 0.65f),
+            )
+
+            // Alt Dalga Katmanı (Arka)
+            val pathBack = Path().apply {
+                moveTo(0f, h * 0.94f)
+                cubicTo(
+                    w * 0.25f, h * 0.90f,
+                    w * 0.65f, h * 0.97f,
+                    w, h * 0.92f,
+                )
+                lineTo(w, h)
+                lineTo(0f, h)
+                close()
+            }
+            drawPath(path = pathBack, color = waveBack)
+
+            // Alt Dalga Katmanı (Ön)
+            val pathFront = Path().apply {
+                moveTo(0f, h * 0.96f)
+                cubicTo(
+                    w * 0.35f, h * 0.99f,
+                    w * 0.70f, h * 0.92f,
+                    w, h * 0.96f,
+                )
+                lineTo(w, h)
+                lineTo(0f, h)
+                close()
+            }
+            drawPath(path = pathFront, color = waveFront)
         }
         content()
     }

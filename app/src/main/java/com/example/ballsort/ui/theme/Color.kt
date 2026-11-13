@@ -48,11 +48,23 @@ val BallPalette = listOf(
 fun ballEntryFor(colorId: Int): BallPaletteEntry =
     BallPalette[colorId.mod(BallPalette.size)]
 
-val SeedPrimaryLight = Color(0xFF3B5BA9)
-val SeedSecondaryLight = Color(0xFF575E71)
-val SeedTertiaryLight = Color(0xFF725572)
+val SeedPrimaryLight = Color(0xFF2E7D32)      // Orman Yeşili (Açık tema Başla butonu)
+val SeedSecondaryLight = Color(0xFF388E3C)    // Nane Yeşili ikincil
+val SeedTertiaryLight = Color(0xFF1B5E20)     // Zümrüt Koyu Yeşili
 
-val SeedPrimaryDark = Color(0xFFB3C5FF)
-val SeedSecondaryDark = Color(0xFFBFC6DC)
-val SeedTertiaryDark = Color(0xFFDFBBDE)
+val SeedPrimaryDark = Color(0xFFFFB300)       // Canlı Altın Sarısı (Koyu tema Başla butonu)
+val SeedSecondaryDark = Color(0xFF4F8DFF)     // Kraliyet Mavisi
+val SeedTertiaryDark = Color(0xFFFFA000)      // Kehribar Sarısı
+
+// Royal Kingdom & Renk Tüpleri Özel Renkleri
+val RoyalDarkBg = Color(0xFF0C1033)
+val RoyalDarkSurface = Color(0xFF15193B)
+val RoyalDarkCard = Color(0xFF1A1F4D)
+val RoyalDarkButton = Color(0xFFFFB300)
+
+val RoyalLightBg = Color(0xFFF3FAF4)
+val RoyalLightSurface = Color(0xFFFFFFFF)
+val RoyalLightCard = Color(0xFFE8F5E9)
+val RoyalLightButton = Color(0xFF2E7D32)
+val RoyalLightEmeraldText = Color(0xFF1B4332)
 

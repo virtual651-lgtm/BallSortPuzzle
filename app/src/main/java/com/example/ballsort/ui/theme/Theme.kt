@@ -16,25 +16,37 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 
 private val LightColors = lightColorScheme(
-    primary = SeedPrimaryLight,
-    secondary = SeedSecondaryLight,
-    tertiary = SeedTertiaryLight,
-    background = Color(0xFFF6F7FB),
-    surface = Color(0xFFFFFFFF),
+    primary = RoyalLightButton,
+    onPrimary = Color.White,
+    primaryContainer = Color(0xFFC8E6C9),
+    onPrimaryContainer = RoyalLightEmeraldText,
+    secondary = Color(0xFF388E3C),
+    onSecondary = Color.White,
+    background = RoyalLightBg,
+    surface = RoyalLightSurface,
+    surfaceVariant = RoyalLightCard,
+    onSurface = RoyalLightEmeraldText,
+    onSurfaceVariant = Color(0xFF2E7D32),
 )
 
 private val DarkColors = darkColorScheme(
-    primary = SeedPrimaryDark,
-    secondary = SeedSecondaryDark,
-    tertiary = SeedTertiaryDark,
-    background = Color(0xFF13131A),
-    surface = Color(0xFF1B1C26),
+    primary = RoyalDarkButton,
+    onPrimary = Color(0xFF1E1400),
+    primaryContainer = Color(0xFFFFA000),
+    onPrimaryContainer = Color.White,
+    secondary = Color(0xFF4F8DFF),
+    onSecondary = Color.White,
+    background = RoyalDarkBg,
+    surface = RoyalDarkSurface,
+    surfaceVariant = RoyalDarkCard,
+    onSurface = Color.White,
+    onSurfaceVariant = Color(0xFFA6B0DE),
 )
 
 @Composable
 fun BallSortTheme(
     themeMode: String = "system",
-    dynamicColor: Boolean = true,
+    dynamicColor: Boolean = false,
     content: @Composable () -> Unit,
 ) {
     val darkTheme = when (themeMode) {
