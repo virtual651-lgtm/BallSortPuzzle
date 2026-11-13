@@ -3,8 +3,8 @@
     <style name="Theme.RenkTupleri" parent="Theme.AppCompat.DayNight.NoActionBar" />
 
     <style name="Theme.RenkTupleri.Starting" parent="Theme.SplashScreen">
-        <item name="windowSplashScreenBackground">@color/splash_background</item>
-        <item name="windowSplashScreenAnimatedIcon">@drawable/splash_logo</item>
+        <item name="windowSplashScreenBackground">#F3FAF4</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/transparent_icon</item>
         <item name="postSplashScreenTheme">@style/Theme.RenkTupleri</item>
     </style>
 </resources>

@@ -17,7 +17,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:label="@string/app_name"
         android:supportsRtl="true"
-        android:theme="@style/Theme.RenkTupleri.Starting">
+        android:theme="@style/Theme.RenkTupleri">
 
         <activity
             android:name=".MainActivity"
