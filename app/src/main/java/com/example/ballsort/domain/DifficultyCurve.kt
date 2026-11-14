@@ -41,7 +41,7 @@ object DifficultyCurve {
             safeId <= 170 -> 13
             else -> 14
         }
-        val emptyTubes = if (isChallengeLevel) 1 else 2
+        val emptyTubes = 2
         val colors = if (isChallengeLevel) {
             when {
                 safeId < 60 -> 5

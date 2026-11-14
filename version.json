@@ -1,6 +1,6 @@
 {
-  "latestVersionCode": 6,
-  "versionName": "1.1.1",
+  "latestVersionCode": 7,
+  "versionName": "1.1.2",
   "apkUrl": "https://github.com/virtual651-lgtm/BallSortPuzzle/releases/latest/download/app-release.apk",
-  "notes": "Zafer ekranındaki buton metin taşmaları düzeltildi; ana menü dikey kaydırma gerektirmeden tüm ekran boyutlarına tam sığacak şekilde optimize edildi."
+  "notes": "Bölüm 35 ve sonraki bölümlerdeki boş tüp kilitleme hatası kaldırıldı; tüm seviyeler kesintisiz ve akıcı oynanabilir hale getirildi."
 }

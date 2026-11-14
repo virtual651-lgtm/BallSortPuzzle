@@ -592,12 +592,7 @@ class GameViewModel @Inject constructor(
         }
     }
 
-    private fun computeLockedTube(levelId: Int, tubes: List<Tube>, capacity: Int): Int? {
-        if (levelId < 35 || levelId % 7 != 0) return null
-        val completedCount = tubes.count { GameLogic.isTubeCompleted(it, capacity) }
-        if (completedCount >= 1) return null
-        return tubes.indexOfLast { it.isEmpty() }.takeIf { it >= 0 }
-    }
+    private fun computeLockedTube(levelId: Int, tubes: List<Tube>, capacity: Int): Int? = null
 
     private suspend fun persistInProgress() {
         val state = _uiState.value
