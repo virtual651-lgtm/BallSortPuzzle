@@ -211,12 +211,18 @@ fun GameScreenContent(
                 maxMoves = uiState.maxMoves,
                 elapsedMs = uiState.elapsedMs,
                 onBackClick = onBackClick,
+                coins = uiState.coins,
+                pacing = uiState.pacing,
             )
         },
         bottomBar = {
             GameBottomBar(
                 canUndo = uiState.canUndo && !uiState.isAnimating,
+                freeUndosRemaining = uiState.freeUndosRemaining,
+                undoTokens = uiState.undoTokens,
+                coins = uiState.coins,
                 extraTubeAvailable = uiState.extraTubeAvailable && !uiState.isAnimating,
+                extraTubeTokens = uiState.extraTubeTokens,
                 isSolvingHint = uiState.isSolvingHint,
                 onUndo = { onEvent(GameEvent.Undo) },
                 onRestart = { onEvent(GameEvent.Restart) },
@@ -344,6 +350,13 @@ fun GameScreenContent(
                 onNextLevel = { onEvent(GameEvent.NextLevel) },
                 onReplay = { onEvent(GameEvent.Restart) },
                 onMenu = onNavigateMenu,
+                earnedCoins = uiState.earnedCoins,
+                isChestOpened = uiState.isChestOpened,
+                pacing = uiState.pacing,
+                isLanDuel = uiState.isLanDuel,
+                rematchRequestedByOpponent = uiState.rematchRequestedByOpponent,
+                rematchRequestedByMe = uiState.rematchRequestedByMe,
+                onRematch = { onEvent(GameEvent.RequestRematch) },
             )
         }
         GameStatus.Stuck -> {

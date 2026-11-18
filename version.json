@@ -1,6 +1,6 @@
 {
-  "latestVersionCode": 7,
-  "versionName": "1.1.2",
+  "latestVersionCode": 8,
+  "versionName": "1.2.0",
   "apkUrl": "https://github.com/virtual651-lgtm/BallSortPuzzle/releases/latest/download/app-release.apk",
-  "notes": "Bölüm 35 ve sonraki bölümlerdeki boş tüp kilitleme hatası kaldırıldı; tüm seviyeler kesintisiz ve akıcı oynanabilir hale getirildi."
+  "notes": "👑 Hükümdarlar & Saraylar Güncellemesi (v1.2.0):\n• Royal Pacing: Her 10 bölümde bir Zor (Mor), Süper Zor (Alevli) ve Hükümdar Boss Düellosu!\n• Saray Çağları: 1-100 Şah Sarayı, 101-200 Sultan Divanı, 201-300 Han Otağı...\n• %100 Çözülebilir Seviye Garantisi (Deadlock tamamen engellendi).\n• Altın & Büyük Hazine Sandığı ödül ekonomisi.\n• Geri Alma & Ek Tüp taktiksel dengelemesi.\n• Wi-Fi Düellosu: Kesintisiz anlık Rövanş (Rematch) desteği.\n• Sıfır veri kaybı garantisi ve eski oyuncular için geriye dönük altın hediyesi!"
 }

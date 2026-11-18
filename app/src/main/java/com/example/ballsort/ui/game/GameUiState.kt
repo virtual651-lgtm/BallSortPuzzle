@@ -7,6 +7,8 @@ package com.example.ballsort.ui.game
 import androidx.compose.runtime.Immutable
 import com.example.ballsort.domain.model.BotDifficulty
 import com.example.ballsort.domain.model.GameStatus
+import com.example.ballsort.domain.model.LevelPacing
+import com.example.ballsort.domain.model.PalaceTheme
 import com.example.ballsort.domain.model.Tube
 
 @Immutable
@@ -39,6 +41,10 @@ data class GameUiState(
     val maxMoves: Int? = null,
     val elapsedMs: Long = 0L,
     val canUndo: Boolean = false,
+    val freeUndosRemaining: Int = 3,
+    val undoTokens: Int = 0,
+    val coins: Int = 0,
+    val extraTubeTokens: Int = 0,
     val extraTubeAvailable: Boolean = true,
     val status: GameStatus = GameStatus.Playing,
     val hintMove: Pair<Int, Int>? = null,
@@ -53,5 +59,11 @@ data class GameUiState(
     val ballSkin: String = "classic",
     val tubeSkin: String = "glass",
     val lockedTubeIndex: Int? = null,
+    val pacing: LevelPacing = PalaceTheme.getPacing(1),
+    val earnedCoins: Int = 0,
+    val isChestOpened: Boolean = false,
+    val rematchRequestedByOpponent: Boolean = false,
+    val rematchRequestedByMe: Boolean = false,
+    val lanMyWins: Int = 0,
+    val lanOpponentWins: Int = 0,
 )
-

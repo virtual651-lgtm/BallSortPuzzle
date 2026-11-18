@@ -1,6 +1,7 @@
 /*
  * com.example.ballsort.data
- * Kalıcı kayıt, ayarlar ve ücretsiz güncelleme kontrolü için serileştirilebilir veri modelleri.
+ * Kalıcı kayıt, ayarlar, ekonomi (altın/jeton) ve ücretsiz güncelleme kontrolü için modeller.
+ * %100 geriye dönük uyumludur, veri kaybı yaşatmaz.
  */
 package com.example.ballsort.data
 
@@ -8,7 +9,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class SaveData(
-    val version: Int = 1,
+    val version: Int = 2,
     val currentLevel: Int = 1,
     val unlockedLevel: Int = 1,
     val levels: Map<Int, LevelResult> = emptyMap(),
@@ -20,6 +21,13 @@ data class SaveData(
     val duelWins: Int = 0,
     val noHintWins: Int = 0,
     val hasSeenWalkthrough: Boolean = false,
+
+    // Yeni Ekonomi ve Ödül Alanları (Varsayılan değerlerle eski kayıtları bozmaz)
+    val coins: Int = 200,
+    val extraTubeTokens: Int = 2,
+    val undoTokens: Int = 5,
+    val hasMigratedRetroactiveCoins: Boolean = false,
+    val unlockedSkins: List<String> = listOf("classic", "glass"),
 )
 
 @Serializable
@@ -39,6 +47,7 @@ data class InProgress(
     val extraTubeUsed: Boolean,
     val hintsUsed: Int = 0,
     val dailyEpochDay: Long? = null,
+    val freeUndosRemaining: Int = 3,
 )
 
 @Serializable
@@ -68,4 +77,3 @@ data class AppUpdateInfo(
     val apkUrl: String,
     val notes: String = "",
 )
-

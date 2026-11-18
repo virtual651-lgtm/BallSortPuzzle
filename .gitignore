@@ -4,8 +4,9 @@ build/
 app/build/
 */build/
 
-# Android Studio / IntelliJ
+# Android Studio / IntelliJ / VS Code
 .idea/
+.vscode/
 *.iml
 local.properties
 .cxx/

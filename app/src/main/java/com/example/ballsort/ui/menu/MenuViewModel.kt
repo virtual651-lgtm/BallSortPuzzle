@@ -37,6 +37,7 @@ data class MenuUiState(
     val achievements: List<AchievementItem> = emptyList(),
     val updateInfo: AppUpdateInfo? = null,
     val shouldShowWalkthrough: Boolean = false,
+    val coins: Int = 0,
 )
 
 @HiltViewModel
@@ -77,6 +78,7 @@ class MenuViewModel @Inject constructor(
             achievements = Achievements.evaluate(save),
             updateInfo = update,
             shouldShowWalkthrough = !save.hasSeenWalkthrough && save.levels.isEmpty(),
+            coins = save.coins,
         )
     }.stateIn(
         scope = viewModelScope,

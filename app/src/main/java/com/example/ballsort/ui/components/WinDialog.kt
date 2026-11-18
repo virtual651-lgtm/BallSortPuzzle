@@ -1,6 +1,7 @@
 /*
  * com.example.ballsort.ui.components
  * Seviye kazanma ve çıkmaz diyalogları (Royal Kingdom / Casual 3D tarzı).
+ * Altın ödülü, Büyük Hazine Sandığı ve kesintisiz Wi-Fi rövanş desteği eklenmiştir.
  */
 package com.example.ballsort.ui.components
 
@@ -64,6 +65,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.example.ballsort.R
 import com.example.ballsort.domain.model.BotDifficulty
+import com.example.ballsort.domain.model.LevelPacing
 import com.example.ballsort.util.formatDuration
 import kotlinx.coroutines.delay
 
@@ -79,6 +81,13 @@ fun WinDialog(
     onMenu: () -> Unit,
     isDuel: Boolean = false,
     botDifficulty: BotDifficulty? = null,
+    earnedCoins: Int = 0,
+    isChestOpened: Boolean = false,
+    pacing: LevelPacing? = null,
+    isLanDuel: Boolean = false,
+    rematchRequestedByOpponent: Boolean = false,
+    rematchRequestedByMe: Boolean = false,
+    onRematch: () -> Unit = {},
 ) {
     val isDark = MaterialTheme.colorScheme.background.luminance() < 0.5f
     var revealedStars by remember(stars) { mutableIntStateOf(0) }
@@ -127,6 +136,8 @@ fun WinDialog(
 
                     // Alt Başlık / Seviye Bilgisi
                     val subtitleText = when {
+                        isLanDuel -> "Wi-Fi Düellosu Zaferi! 🏆"
+                        isDuel && pacing?.bossTitle != null -> "${pacing.bossTitle} Karşısında Zafer! 👑"
                         isDuel && botDifficulty != null -> "${stringResource(botDifficulty.titleRes)} Karşısında Zafer! 🏆"
                         isDuel -> stringResource(R.string.win_duel_subtitle)
                         isDaily -> stringResource(R.string.win_daily_subtitle)
@@ -140,14 +151,69 @@ fun WinDialog(
                         textAlign = TextAlign.Center,
                     )
 
-                    Spacer(modifier = Modifier.height(14.dp))
+                    Spacer(modifier = Modifier.height(12.dp))
 
                     // 3D Kavisli Podyum Yıldızları
                     PodiumStarsRow(
                         revealedStars = revealedStars,
                     )
 
-                    Spacer(modifier = Modifier.height(16.dp))
+                    Spacer(modifier = Modifier.height(14.dp))
+
+                    // Altın Ödülü Kapsülü
+                    if (earnedCoins > 0) {
+                        Surface(
+                            shape = RoundedCornerShape(16.dp),
+                            color = Color(0xFFFFB300).copy(alpha = 0.15f),
+                            border = BorderStroke(1.5.dp, Color(0xFFFFB300)),
+                            modifier = Modifier.padding(bottom = 12.dp),
+                        ) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(6.dp),
+                                modifier = Modifier.padding(horizontal = 14.dp, vertical = 6.dp),
+                            ) {
+                                Text(text = "🪙", fontSize = 18.sp)
+                                Text(
+                                    text = "+$earnedCoins Altın",
+                                    style = MaterialTheme.typography.titleMedium.copy(
+                                        fontWeight = FontWeight.Black,
+                                        color = if (isDark) Color(0xFFFFD54F) else Color(0xFFB26A00),
+                                    ),
+                                )
+                            }
+                        }
+                    }
+
+                    // Büyük Hazine Sandığı Kartı (Boss Geçildiğinde)
+                    if (isChestOpened) {
+                        Surface(
+                            shape = RoundedCornerShape(18.dp),
+                            color = Color(0xFF8E24AA).copy(alpha = 0.15f),
+                            border = BorderStroke(1.5.dp, Color(0xFFAB47BC)),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(bottom = 14.dp),
+                        ) {
+                            Column(
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                modifier = Modifier.padding(10.dp),
+                            ) {
+                                Text(
+                                    text = "🎁 BÜYÜK HAZİNE SANDIĞI AÇILDI! 🎁",
+                                    style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Black),
+                                    color = if (isDark) Color(0xFFCE93D8) else Color(0xFF6A1B9A),
+                                    letterSpacing = 0.5.sp,
+                                )
+                                Spacer(modifier = Modifier.height(3.dp))
+                                Text(
+                                    text = "+150 Altın  •  +1 Ek Tüp  •  +2 Geri Alma",
+                                    style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
+                                    color = if (isDark) Color.White else Color(0xFF4A148C),
+                                )
+                            }
+                        }
+                    }
 
                     // İstatistik Kapsülleri (Hamle & Süre)
                     Row(
@@ -170,58 +236,90 @@ fun WinDialog(
                         )
                     }
 
-                    Spacer(modifier = Modifier.height(22.dp))
+                    Spacer(modifier = Modifier.height(20.dp))
 
-                    // Birincil Büyük 3D Eylem Butonu (Sonraki Seviye / Yeni Düello)
-                    val primaryAction = if (isDuel || !isDaily) onNextLevel else onMenu
-                    val primaryLabel = when {
-                        isDuel -> stringResource(R.string.win_new_duel)
-                        !isDaily -> stringResource(R.string.win_next_level)
-                        else -> stringResource(R.string.win_menu)
-                    }
-
-                    Button(
-                        onClick = primaryAction,
-                        shape = RoundedCornerShape(22.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
-                        contentPadding = PaddingValues(0.dp),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(52.dp)
-                            .background(
-                                brush = Brush.verticalGradient(
-                                    listOf(Color(0xFF43A047), Color(0xFF2E7D32))
-                                ),
-                                shape = RoundedCornerShape(22.dp),
-                            )
-                            .border(1.5.dp, Color(0xFF81C784), RoundedCornerShape(22.dp)),
-                    ) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.Center,
+                    // Birincil Büyük Eylem Butonu
+                    if (isLanDuel) {
+                        // Wi-Fi Düellosunda Kesintisiz Rövanş Butonu
+                        val rematchLabel = when {
+                            rematchRequestedByOpponent -> "Rövanşı Kabul Et ⚔️"
+                            rematchRequestedByMe -> "Rövanş Bekleniyor… ⏳"
+                            else -> "Rövanş İste ⚔️"
+                        }
+                        Button(
+                            onClick = onRematch,
+                            shape = RoundedCornerShape(22.dp),
+                            colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
+                            contentPadding = PaddingValues(0.dp),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(52.dp)
+                                .background(
+                                    brush = Brush.verticalGradient(
+                                        listOf(Color(0xFFE65100), Color(0xFFBF360C))
+                                    ),
+                                    shape = RoundedCornerShape(22.dp),
+                                )
+                                .border(1.5.dp, Color(0xFFFFB74D), RoundedCornerShape(22.dp)),
                         ) {
-                            Icon(
-                                imageVector = Icons.Filled.PlayArrow,
-                                contentDescription = null,
-                                tint = Color.White,
-                                modifier = Modifier.size(24.dp),
-                            )
-                            Spacer(modifier = Modifier.width(6.dp))
                             Text(
-                                text = primaryLabel,
+                                text = rematchLabel,
                                 style = MaterialTheme.typography.titleMedium,
                                 fontWeight = FontWeight.Bold,
                                 color = Color.White,
-                                letterSpacing = 0.5.sp,
-                                maxLines = 1,
-                                softWrap = false,
                             )
+                        }
+                    } else {
+                        val primaryAction = if (isDuel || !isDaily) onNextLevel else onMenu
+                        val primaryLabel = when {
+                            isDuel -> stringResource(R.string.win_new_duel)
+                            !isDaily -> stringResource(R.string.win_next_level)
+                            else -> stringResource(R.string.win_menu)
+                        }
+
+                        Button(
+                            onClick = primaryAction,
+                            shape = RoundedCornerShape(22.dp),
+                            colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
+                            contentPadding = PaddingValues(0.dp),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(52.dp)
+                                .background(
+                                    brush = Brush.verticalGradient(
+                                        listOf(Color(0xFF43A047), Color(0xFF2E7D32))
+                                    ),
+                                    shape = RoundedCornerShape(22.dp),
+                                )
+                                .border(1.5.dp, Color(0xFF81C784), RoundedCornerShape(22.dp)),
+                        ) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.Center,
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Filled.PlayArrow,
+                                    contentDescription = null,
+                                    tint = Color.White,
+                                    modifier = Modifier.size(24.dp),
+                                )
+                                Spacer(modifier = Modifier.width(6.dp))
+                                Text(
+                                    text = primaryLabel,
+                                    style = MaterialTheme.typography.titleMedium,
+                                    fontWeight = FontWeight.Bold,
+                                    color = Color.White,
+                                    letterSpacing = 0.5.sp,
+                                    maxLines = 1,
+                                    softWrap = false,
+                                )
+                            }
                         }
                     }
 
                     Spacer(modifier = Modifier.height(10.dp))
 
-                    // İkincil Butonlar (Tekrar Oyna & Ana Menü) - Tek satıra tam sığacak şekilde optimize edildi
+                    // İkincil Butonlar (Tekrar Oyna & Ana Menü)
                     Row(
                         horizontalArrangement = Arrangement.spacedBy(10.dp),
                         modifier = Modifier.fillMaxWidth(),
@@ -314,7 +412,6 @@ private fun PodiumStarsRow(
             .fillMaxWidth()
             .height(96.dp),
     ) {
-        // Yıldız 1 (Sol) - Eğik, biraz aşağıda
         PodiumStar(
             index = 1,
             isRevealed = revealedStars >= 1,
@@ -325,7 +422,6 @@ private fun PodiumStarsRow(
 
         Spacer(modifier = Modifier.width(12.dp))
 
-        // Yıldız 2 (Orta) - BÜYÜK, yüksekte, altın hale ışıması
         PodiumStar(
             index = 2,
             isRevealed = revealedStars >= 2,
@@ -337,7 +433,6 @@ private fun PodiumStarsRow(
 
         Spacer(modifier = Modifier.width(12.dp))
 
-        // Yıldız 3 (Sağ) - Eğik, biraz aşağıda
         PodiumStar(
             index = 3,
             isRevealed = revealedStars >= 3,
@@ -373,7 +468,6 @@ private fun PodiumStar(
             .rotate(rotation)
             .scale(scale),
     ) {
-        // Ortadaki taç yıldız için altın aura ışıması
         if (isRevealed && hasCrownGlow) {
             Box(
                 modifier = Modifier
@@ -387,7 +481,6 @@ private fun PodiumStar(
             )
         }
 
-        // Yıldız soket taban gölgesi
         Icon(
             imageVector = Icons.Filled.Star,
             contentDescription = null,
@@ -398,14 +491,12 @@ private fun PodiumStar(
         )
 
         if (isRevealed) {
-            // Canlı Altın Yıldız Tabanı
             Icon(
                 imageVector = Icons.Filled.Star,
                 contentDescription = null,
                 tint = Color(0xFFFFB300),
                 modifier = Modifier.size(size),
             )
-            // 3D Hacimsel Vurgu / Işıltı
             Icon(
                 imageVector = Icons.Filled.Star,
                 contentDescription = null,
@@ -415,7 +506,6 @@ private fun PodiumStar(
                     .offset(x = (-1).dp, y = (-1).dp),
             )
         } else {
-            // Boş soket yıldızı
             Icon(
                 imageVector = Icons.Outlined.StarOutline,
                 contentDescription = null,

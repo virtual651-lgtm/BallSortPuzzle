@@ -14,6 +14,7 @@ sealed interface GameEvent {
     data object AnimationFinished : GameEvent
     data object ScreenResumed : GameEvent
     data object ScreenPaused : GameEvent
+    data object RequestRematch : GameEvent
 }
 
 sealed interface GameEffect {
@@ -22,5 +23,5 @@ sealed interface GameEffect {
     data object BallPlaced : GameEffect
     data object TubeCompleted : GameEffect
     data object LevelWon : GameEffect
+    data object ChestOpened : GameEffect
 }
-

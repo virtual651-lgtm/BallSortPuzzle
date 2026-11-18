@@ -1,11 +1,15 @@
 /*
  * com.example.ballsort.ui.components
  * Oyun alt araç çubuğu: Geri Al, Yeniden Başlat, İpucu ve Ekstra Tüp.
+ * Dinamik haklar, altın bedeli ve jeton rozetleriyle donatılmıştır.
  */
 package com.example.ballsort.ui.components
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -15,11 +19,12 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Undo
 import androidx.compose.material.icons.filled.AddBox
 import androidx.compose.material.icons.filled.Lightbulb
-import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.filled.Shuffle
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.Icon
@@ -31,25 +36,24 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.example.ballsort.R
-
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.Box
-import androidx.compose.material.icons.filled.Shuffle
-import androidx.compose.ui.graphics.luminance
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
+import com.example.ballsort.R
 
 @Composable
 fun GameBottomBar(
     canUndo: Boolean,
-    extraTubeAvailable: Boolean,
-    isSolvingHint: Boolean,
+    freeUndosRemaining: Int = 3,
+    undoTokens: Int = 0,
+    coins: Int = 0,
+    extraTubeAvailable: Boolean = true,
+    extraTubeTokens: Int = 0,
+    isSolvingHint: Boolean = false,
     onUndo: () -> Unit,
     onRestart: () -> Unit,
     onHint: () -> Unit,
@@ -57,6 +61,19 @@ fun GameBottomBar(
     modifier: Modifier = Modifier,
 ) {
     val isDark = MaterialTheme.colorScheme.background.luminance() < 0.5f
+
+    val undoBadge = when {
+        freeUndosRemaining > 0 -> "$freeUndosRemaining"
+        undoTokens > 0 -> "${undoTokens}x"
+        coins >= 20 -> "20🪙"
+        else -> "0"
+    }
+
+    val tubeBadge = when {
+        extraTubeTokens > 0 -> "${extraTubeTokens}x"
+        coins >= 80 -> "80🪙"
+        else -> "80🪙"
+    }
 
     Surface(
         color = Color.Transparent,
@@ -69,21 +86,21 @@ fun GameBottomBar(
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp, vertical = 14.dp),
         ) {
-            // Geri Al (Undo) + Rozet "3"
+            // Geri Al (Undo) + Dinamik Hak/Altın Rozeti
             CircularGameAction(
                 icon = Icons.AutoMirrored.Filled.Undo,
                 label = stringResource(R.string.action_undo),
-                badgeText = "3",
+                badgeText = undoBadge,
                 enabled = canUndo,
                 isDark = isDark,
                 onClick = onUndo,
             )
 
-            // İpucu (Hint / Ampul) + Rozet "3"
+            // İpucu (Hint / Ampul)
             CircularGameAction(
                 icon = Icons.Default.Lightbulb,
                 label = stringResource(R.string.action_hint),
-                badgeText = "3",
+                badgeText = "💡",
                 enabled = !isSolvingHint,
                 loading = isSolvingHint,
                 isDark = isDark,
@@ -105,7 +122,7 @@ fun GameBottomBar(
                 CircularGameAction(
                     icon = Icons.Default.AddBox,
                     label = stringResource(R.string.action_add_tube),
-                    badgeText = "+1",
+                    badgeText = tubeBadge,
                     enabled = true,
                     isDark = isDark,
                     onClick = onAddTube,
@@ -122,61 +139,85 @@ private fun CircularGameAction(
     badgeText: String?,
     enabled: Boolean,
     isDark: Boolean,
-    loading: Boolean = false,
     onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    loading: Boolean = false,
 ) {
-    val circleBg = if (isDark) Color(0xFF1D2254) else Color(0xFFC8E6C9)
-    val circleBorder = if (isDark) Color(0xFF3B4380) else Color(0xFFA5D6A7)
-    val iconColor = if (isDark) Color.White else Color(0xFF1B4332)
-    val badgeBg = if (isDark) Color(0xFFFF9800) else Color(0xFF2E7D32)
+    val buttonBg = if (isDark) Color(0xFF1E2352) else Color(0xFFC8E6C9)
+    val buttonBorder = BorderStroke(1.5.dp, if (isDark) Color(0xFF3B4380) else Color(0xFFA5D6A7))
+    val iconTint = if (isDark) Color.White else Color(0xFF1B4332)
+    val labelColor = if (isDark) Color(0xFFE0E0E0) else Color(0xFF2E7D32)
 
-    Box(contentAlignment = Alignment.BottomEnd) {
-        Surface(
-            onClick = onClick,
-            enabled = enabled,
-            shape = CircleShape,
-            color = if (enabled) circleBg else circleBg.copy(alpha = 0.45f),
-            border = BorderStroke(
-                1.5.dp,
-                if (enabled) circleBorder else circleBorder.copy(alpha = 0.35f),
-            ),
-            modifier = Modifier.size(58.dp),
-        ) {
-            Box(contentAlignment = Alignment.Center) {
-                if (loading) {
-                    CircularProgressIndicator(
-                        strokeWidth = 2.dp,
-                        color = iconColor,
-                        modifier = Modifier.size(22.dp),
-                    )
-                } else {
-                    Icon(
-                        imageVector = icon,
-                        contentDescription = label,
-                        tint = if (enabled) iconColor else iconColor.copy(alpha = 0.4f),
-                        modifier = Modifier.size(26.dp),
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = modifier,
+    ) {
+        Box(contentAlignment = Alignment.Center) {
+            Surface(
+                onClick = onClick,
+                enabled = enabled && !loading,
+                shape = CircleShape,
+                color = buttonBg,
+                border = buttonBorder,
+                shadowElevation = if (enabled) 4.dp else 0.dp,
+                modifier = Modifier.size(54.dp),
+            ) {
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
+                    if (loading) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(24.dp),
+                            strokeWidth = 2.5.dp,
+                            color = iconTint,
+                        )
+                    } else {
+                        Icon(
+                            imageVector = icon,
+                            contentDescription = label,
+                            tint = if (enabled) iconTint else iconTint.copy(alpha = 0.38f),
+                            modifier = Modifier.size(26.dp),
+                        )
+                    }
+                }
+            }
+
+            // Rozet (Badge)
+            if (badgeText != null) {
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .defaultMinSize(minWidth = 18.dp, minHeight = 18.dp)
+                        .background(
+                            color = if (badgeText.contains("🪙")) Color(0xFFFFB300) else Color(0xFF8E24AA),
+                            shape = RoundedCornerShape(9.dp),
+                        )
+                        .border(1.dp, Color.White.copy(alpha = 0.8f), RoundedCornerShape(9.dp))
+                        .padding(horizontal = 4.dp, vertical = 1.dp),
+                ) {
+                    Text(
+                        text = badgeText,
+                        color = Color.White,
+                        fontSize = 10.sp,
+                        fontWeight = FontWeight.Bold,
+                        maxLines = 1,
                     )
                 }
             }
         }
 
-        // Kalan Sayaç Rozeti
-        if (badgeText != null && enabled) {
-            Box(
-                contentAlignment = Alignment.Center,
-                modifier = Modifier
-                    .size(20.dp)
-                    .background(badgeBg, CircleShape)
-                    .border(1.dp, Color.White.copy(alpha = 0.7f), CircleShape),
-            ) {
-                Text(
-                    text = badgeText,
-                    fontSize = 11.sp,
-                    fontWeight = FontWeight.Black,
-                    color = Color.White,
-                )
-            }
-        }
+        Spacer(modifier = Modifier.height(4.dp))
+        Text(
+            text = label,
+            style = MaterialTheme.typography.labelSmall.copy(
+                fontWeight = FontWeight.Medium,
+                fontSize = 11.sp,
+            ),
+            color = if (enabled) labelColor else labelColor.copy(alpha = 0.45f),
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+        )
     }
 }
-

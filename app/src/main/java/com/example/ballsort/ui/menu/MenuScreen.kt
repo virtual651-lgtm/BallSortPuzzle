@@ -173,32 +173,58 @@ fun MenuScreen(
                         }
                     }
 
-                    androidx.compose.material3.Surface(
-                        shape = RoundedCornerShape(22.dp),
-                        color = if (isDark) Color(0xFF15193B) else Color(0xFFE8F5E9),
-                        border = BorderStroke(
-                            1.5.dp,
-                            if (isDark) Color(0xFF3B4380) else Color(0xFFA5D6A7)
-                        ),
-                        modifier = Modifier.height(40.dp),
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalAlignment = Alignment.CenterVertically,
                     ) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp),
+                        androidx.compose.material3.Surface(
+                            shape = RoundedCornerShape(22.dp),
+                            color = Color(0xFFFFB300).copy(alpha = 0.2f),
+                            border = BorderStroke(1.5.dp, Color(0xFFFFB300)),
+                            modifier = Modifier.height(40.dp),
                         ) {
-                            Icon(
-                                imageVector = Icons.Default.EmojiEvents,
-                                contentDescription = null,
-                                tint = Color(0xFFFFC107),
-                                modifier = Modifier.size(22.dp),
-                            )
-                            Spacer(modifier = Modifier.width(6.dp))
-                            Text(
-                                text = "${uiState.totalStars}",
-                                fontSize = 16.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = if (isDark) Color.White else Color(0xFF1B4332),
-                            )
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
+                            ) {
+                                Text(text = "🪙", fontSize = 15.sp)
+                                Spacer(modifier = Modifier.width(4.dp))
+                                Text(
+                                    text = "${uiState.coins}",
+                                    fontSize = 15.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = Color(0xFFFFB300),
+                                )
+                            }
+                        }
+
+                        androidx.compose.material3.Surface(
+                            shape = RoundedCornerShape(22.dp),
+                            color = if (isDark) Color(0xFF15193B) else Color(0xFFE8F5E9),
+                            border = BorderStroke(
+                                1.5.dp,
+                                if (isDark) Color(0xFF3B4380) else Color(0xFFA5D6A7)
+                            ),
+                            modifier = Modifier.height(40.dp),
+                        ) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp),
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.EmojiEvents,
+                                    contentDescription = null,
+                                    tint = Color(0xFFFFC107),
+                                    modifier = Modifier.size(22.dp),
+                                )
+                                Spacer(modifier = Modifier.width(6.dp))
+                                Text(
+                                    text = "${uiState.totalStars}",
+                                    fontSize = 16.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = if (isDark) Color.White else Color(0xFF1B4332),
+                                )
+                            }
                         }
                     }
                 }

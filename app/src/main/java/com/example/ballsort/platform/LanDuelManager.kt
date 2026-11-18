@@ -1,6 +1,6 @@
 /*
  * com.example.ballsort.platform
- * Aynı Wi-Fi ağındaki cihazlar arasında NsdManager + TCP Socket tabanlı canlı düello yöneticisi.
+ * Wi-Fi LAN Düello Yöneticisi: NSD keşfi, soket haberleşmesi ve kesintisiz rövanş (Rematch) desteği.
  */
 package com.example.ballsort.platform
 
@@ -46,6 +46,10 @@ sealed interface LanDuelState {
         val opponentMoves: Int = 0,
         val opponentWon: Boolean = false,
         val opponentDisconnected: Boolean = false,
+        val rematchRequestedByOpponent: Boolean = false,
+        val rematchRequestedByMe: Boolean = false,
+        val myWins: Int = 0,
+        val opponentWins: Int = 0,
     ) : LanDuelState
     data class Error(val message: String) : LanDuelState
 }
@@ -56,6 +60,8 @@ interface LanDuelTransport {
     fun startBrowsing()
     fun connectTo(host: String, port: Int)
     fun sendProgress(completedTubes: Int, totalColors: Int, moves: Int, won: Boolean)
+    fun requestRematch()
+    fun recordMatchOutcome(iWon: Boolean)
     fun close()
 }
 
@@ -66,6 +72,8 @@ object NoOpLanDuelTransport : LanDuelTransport {
     override fun startBrowsing() = Unit
     override fun connectTo(host: String, port: Int) = Unit
     override fun sendProgress(completedTubes: Int, totalColors: Int, moves: Int, won: Boolean) = Unit
+    override fun requestRematch() = Unit
+    override fun recordMatchOutcome(iWon: Boolean) = Unit
     override fun close() = Unit
 }
 
@@ -197,6 +205,39 @@ class LanDuelManager @Inject constructor(
         }
     }
 
+    override fun requestRematch() {
+        val out = writer ?: return
+        val cur = _state.value as? LanDuelState.InMatch ?: return
+        scope.launch {
+            runCatching {
+                if (cur.rematchRequestedByOpponent) {
+                    // İki taraf da rövanş istedi, yeni tohumla oyunu başlat
+                    val newSeed = System.currentTimeMillis()
+                    out.println("REMATCH_START:$newSeed")
+                    _state.value = cur.copy(
+                        seed = newSeed,
+                        opponentCompleted = 0,
+                        opponentMoves = 0,
+                        opponentWon = false,
+                        rematchRequestedByMe = false,
+                        rematchRequestedByOpponent = false,
+                    )
+                } else {
+                    out.println("REMATCH_REQ")
+                    _state.value = cur.copy(rematchRequestedByMe = true)
+                }
+            }
+        }
+    }
+
+    override fun recordMatchOutcome(iWon: Boolean) {
+        val cur = _state.value as? LanDuelState.InMatch ?: return
+        _state.value = cur.copy(
+            myWins = if (iWon) cur.myWins + 1 else cur.myWins,
+            opponentWins = if (!iWon) cur.opponentWins + 1 else cur.opponentWins,
+        )
+    }
+
     private fun readLoop(socket: Socket, seed: Long) {
         val reader = BufferedReader(InputStreamReader(socket.getInputStream()))
         readLines(reader, seed)
@@ -221,6 +262,34 @@ class LanDuelManager @Inject constructor(
                             opponentWon = cur.opponentWon || won,
                         )
                     }
+                } else if (line.startsWith("REMATCH_REQ")) {
+                    val cur = _state.value as? LanDuelState.InMatch ?: LanDuelState.InMatch(seed)
+                    if (cur.rematchRequestedByMe) {
+                        // Ben zaten rövanş istemiştim, yeni tohumu üretip gönderelim
+                        val newSeed = System.currentTimeMillis()
+                        writer?.println("REMATCH_START:$newSeed")
+                        _state.value = cur.copy(
+                            seed = newSeed,
+                            opponentCompleted = 0,
+                            opponentMoves = 0,
+                            opponentWon = false,
+                            rematchRequestedByMe = false,
+                            rematchRequestedByOpponent = false,
+                        )
+                    } else {
+                        _state.value = cur.copy(rematchRequestedByOpponent = true)
+                    }
+                } else if (line.startsWith("REMATCH_START:")) {
+                    val newSeed = line.removePrefix("REMATCH_START:").toLongOrNull() ?: System.currentTimeMillis()
+                    val cur = _state.value as? LanDuelState.InMatch ?: LanDuelState.InMatch(seed)
+                    _state.value = cur.copy(
+                        seed = newSeed,
+                        opponentCompleted = 0,
+                        opponentMoves = 0,
+                        opponentWon = false,
+                        rematchRequestedByMe = false,
+                        rematchRequestedByOpponent = false,
+                    )
                 }
             }
         } catch (_: Exception) {
@@ -282,4 +351,3 @@ class LanDuelManager @Inject constructor(
         const val DEFAULT_PORT = 47777
     }
 }
-

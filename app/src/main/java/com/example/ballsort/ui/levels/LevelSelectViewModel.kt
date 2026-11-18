@@ -1,6 +1,6 @@
 /*
  * com.example.ballsort.ui.levels
- * Seviye seçim ekranı ViewModel'i: açık seviyeler, yıldızlar ve en iyi hamle sayıları.
+ * Seviye seçim ekranı ViewModel'i: açık seviyeler, altın, yıldızlar ve en iyi hamle sayıları.
  */
 package com.example.ballsort.ui.levels
 
@@ -20,6 +20,7 @@ data class LevelSelectUiState(
     val unlockedLevel: Int = 1,
     val totalLevels: Int = DifficultyCurve.TOTAL_CURATED_LEVELS,
     val results: Map<Int, LevelResult> = emptyMap(),
+    val coins: Int = 0,
 )
 
 @HiltViewModel
@@ -31,8 +32,9 @@ class LevelSelectViewModel @Inject constructor(
         .map { save ->
             LevelSelectUiState(
                 unlockedLevel = save.unlockedLevel,
-                totalLevels = maxOf(DifficultyCurve.TOTAL_CURATED_LEVELS, save.unlockedLevel),
+                totalLevels = maxOf(DifficultyCurve.TOTAL_CURATED_LEVELS, ((save.unlockedLevel + 19) / 10) * 10),
                 results = save.levels,
+                coins = save.coins,
             )
         }
         .stateIn(
@@ -41,4 +43,3 @@ class LevelSelectViewModel @Inject constructor(
             initialValue = LevelSelectUiState(),
         )
 }
-
