@@ -64,6 +64,24 @@ class GameViewModelTest {
         override suspend fun clearInProgress() {
             state.value = state.value.copy(inProgress = null)
         }
+
+        override suspend fun useExtraTubeToken(): Boolean {
+            state.value = state.value.copy(extraTubeTokens = maxOf(0, state.value.extraTubeTokens - 1))
+            return true
+        }
+
+        override suspend fun useUndoToken(): Boolean {
+            state.value = state.value.copy(undoTokens = maxOf(0, state.value.undoTokens - 1))
+            return true
+        }
+
+        override suspend fun spendCoins(amount: Int): Boolean {
+            if (state.value.coins >= amount) {
+                state.value = state.value.copy(coins = state.value.coins - amount)
+                return true
+            }
+            return false
+        }
     }
 
     private class FakeSettingsRepository : SettingsRepository {

@@ -18,10 +18,10 @@ interface ProgressRepository {
 
     // Yeni Ekonomi & Ödül Sistemi
     suspend fun addCoins(amount: Int) {}
-    suspend fun spendCoins(amount: Int): Boolean = false
-    suspend fun useUndoToken(): Boolean = false
+    suspend fun spendCoins(amount: Int): Boolean = true
+    suspend fun useUndoToken(): Boolean = true
     suspend fun addUndoTokens(amount: Int) {}
-    suspend fun useExtraTubeToken(): Boolean = false
+    suspend fun useExtraTubeToken(): Boolean = true
     suspend fun addExtraTubeTokens(amount: Int) {}
     suspend fun unlockSkin(skinName: String) {}
 }

@@ -131,6 +131,10 @@ fun GameScreen(
                     soundPlayer.playWin(settings.sound)
                     haptics.win(settings.vibration)
                 }
+                GameEffect.ChestOpened -> {
+                    soundPlayer.playWin(settings.sound)
+                    haptics.win(settings.vibration)
+                }
             }
         }
     }
