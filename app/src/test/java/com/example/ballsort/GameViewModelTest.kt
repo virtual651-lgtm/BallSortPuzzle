@@ -75,6 +75,15 @@ class GameViewModelTest {
             return true
         }
 
+        override suspend fun useSwapToken(): Boolean {
+            state.value = state.value.copy(swapTokens = maxOf(0, state.value.swapTokens - 1))
+            return true
+        }
+
+        override suspend fun addSwapTokens(amount: Int) {
+            state.value = state.value.copy(swapTokens = state.value.swapTokens + amount)
+        }
+
         override suspend fun spendCoins(amount: Int): Boolean {
             if (state.value.coins >= amount) {
                 state.value = state.value.copy(coins = state.value.coins - amount)
@@ -150,5 +159,45 @@ class GameViewModelTest {
         advanceUntilIdle()
         assertEquals(countBefore + 1, vm.uiState.value.tubes.size)
         assertFalse(vm.uiState.value.extraTubeAvailable)
+    }
+
+    @Test
+    fun swapBooster_exchangesTopBallsAndDeductsToken() = runTest(testDispatcher) {
+        val progressRepo = FakeProgressRepository()
+        val settingsRepo = FakeSettingsRepository()
+        val vm = GameViewModel(
+            savedStateHandle = SavedStateHandle(mapOf("levelId" to 1)),
+            progressRepository = progressRepo,
+            settingsRepository = settingsRepo,
+            lanDuelTransport = NoOpLanDuelTransport,
+            defaultDispatcher = testDispatcher,
+        )
+        vm.onEvent(GameEvent.ScreenPaused)
+        advanceUntilIdle()
+
+        val state = vm.uiState.value
+        val nonEmptyIndices = state.tubes.indices.filter { state.tubes[it].isNotEmpty() }
+        val tubeA = nonEmptyIndices[0]
+        val tubeB = nonEmptyIndices[1]
+        val topA = state.tubes[tubeA].last()
+        val topB = state.tubes[tubeB].last()
+
+        // Takas modunu aç
+        vm.onEvent(GameEvent.ToggleSwapMode)
+        assertTrue(vm.uiState.value.isSwapMode)
+
+        // 1. tüpü seç
+        vm.onEvent(GameEvent.TubeTapped(tubeA))
+        assertEquals(tubeA, vm.uiState.value.swapFirstSelectedTube)
+
+        // 2. tüpü seçip takası gerçekleştir
+        vm.onEvent(GameEvent.TubeTapped(tubeB))
+        advanceUntilIdle()
+
+        assertFalse(vm.uiState.value.isSwapMode)
+        assertNull(vm.uiState.value.swapFirstSelectedTube)
+        assertEquals(topB, vm.uiState.value.tubes[tubeA].last())
+        assertEquals(topA, vm.uiState.value.tubes[tubeB].last())
+        assertEquals(1, vm.uiState.value.moves)
     }
 }

@@ -84,6 +84,7 @@ class DataStoreProgressRepository @Inject constructor(
             val chestCoins = if (isBoss && prev == null) 150 else 0
             val chestTubeTokens = if (isBoss && prev == null) 1 else 0
             val chestUndoTokens = if (isBoss && prev == null) 2 else 0
+            val chestSwapTokens = if (isBoss && prev == null) 1 else 0
 
             val nextUnlocked = maxOf(current.unlockedLevel, levelId + 1)
             val updated = current.copy(
@@ -93,6 +94,7 @@ class DataStoreProgressRepository @Inject constructor(
                 coins = current.coins + levelCoins + chestCoins,
                 extraTubeTokens = current.extraTubeTokens + chestTubeTokens,
                 undoTokens = current.undoTokens + chestUndoTokens,
+                swapTokens = current.swapTokens + chestSwapTokens,
                 inProgress = null,
                 hasMigratedRetroactiveCoins = true,
             )
@@ -200,6 +202,25 @@ class DataStoreProgressRepository @Inject constructor(
         dataStore.edit { prefs ->
             val current = decodeSave(prefs[saveKey])
             prefs[saveKey] = json.encodeToString(current.copy(extraTubeTokens = current.extraTubeTokens + amount))
+        }
+    }
+
+    override suspend fun useSwapToken(): Boolean {
+        var success = false
+        dataStore.edit { prefs ->
+            val current = decodeSave(prefs[saveKey])
+            if (current.swapTokens > 0) {
+                prefs[saveKey] = json.encodeToString(current.copy(swapTokens = current.swapTokens - 1))
+                success = true
+            }
+        }
+        return success
+    }
+
+    override suspend fun addSwapTokens(amount: Int) {
+        dataStore.edit { prefs ->
+            val current = decodeSave(prefs[saveKey])
+            prefs[saveKey] = json.encodeToString(current.copy(swapTokens = current.swapTokens + amount))
         }
     }
 

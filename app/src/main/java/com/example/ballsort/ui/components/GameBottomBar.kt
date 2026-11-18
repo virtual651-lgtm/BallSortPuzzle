@@ -24,7 +24,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Undo
 import androidx.compose.material.icons.filled.AddBox
 import androidx.compose.material.icons.filled.Lightbulb
-import androidx.compose.material.icons.filled.Shuffle
+import androidx.compose.material.icons.filled.SwapHoriz
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.Icon
@@ -53,9 +53,11 @@ fun GameBottomBar(
     coins: Int = 0,
     extraTubeAvailable: Boolean = true,
     extraTubeTokens: Int = 0,
+    swapTokens: Int = 0,
+    isSwapMode: Boolean = false,
     isSolvingHint: Boolean = false,
     onUndo: () -> Unit,
-    onRestart: () -> Unit,
+    onSwap: () -> Unit,
     onHint: () -> Unit,
     onAddTube: () -> Unit,
     modifier: Modifier = Modifier,
@@ -67,6 +69,13 @@ fun GameBottomBar(
         undoTokens > 0 -> "${undoTokens}x"
         coins >= 20 -> "20🪙"
         else -> "0"
+    }
+
+    val swapBadge = when {
+        isSwapMode -> "✕"
+        swapTokens > 0 -> "${swapTokens}x"
+        coins >= 50 -> "50🪙"
+        else -> "50🪙"
     }
 
     val tubeBadge = when {
@@ -91,9 +100,20 @@ fun GameBottomBar(
                 icon = Icons.AutoMirrored.Filled.Undo,
                 label = stringResource(R.string.action_undo),
                 badgeText = undoBadge,
-                enabled = canUndo,
+                enabled = canUndo && !isSwapMode,
                 isDark = isDark,
                 onClick = onUndo,
+            )
+
+            // Top Takası (Swap Booster)
+            CircularGameAction(
+                icon = Icons.Default.SwapHoriz,
+                label = stringResource(R.string.action_swap),
+                badgeText = swapBadge,
+                enabled = true,
+                isDark = isDark,
+                isHighlighted = isSwapMode,
+                onClick = onSwap,
             )
 
             // İpucu (Hint / Ampul)
@@ -101,20 +121,10 @@ fun GameBottomBar(
                 icon = Icons.Default.Lightbulb,
                 label = stringResource(R.string.action_hint),
                 badgeText = "💡",
-                enabled = !isSolvingHint,
+                enabled = !isSolvingHint && !isSwapMode,
                 loading = isSolvingHint,
                 isDark = isDark,
                 onClick = onHint,
-            )
-
-            // Karıştır / Sıfırla (Shuffle / Restart)
-            CircularGameAction(
-                icon = Icons.Default.Shuffle,
-                label = stringResource(R.string.action_restart),
-                badgeText = null,
-                enabled = true,
-                isDark = isDark,
-                onClick = onRestart,
             )
 
             // Ekstra Tüp (+1)
@@ -123,7 +133,7 @@ fun GameBottomBar(
                     icon = Icons.Default.AddBox,
                     label = stringResource(R.string.action_add_tube),
                     badgeText = tubeBadge,
-                    enabled = true,
+                    enabled = !isSwapMode,
                     isDark = isDark,
                     onClick = onAddTube,
                 )
@@ -142,11 +152,28 @@ private fun CircularGameAction(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     loading: Boolean = false,
+    isHighlighted: Boolean = false,
 ) {
-    val buttonBg = if (isDark) Color(0xFF1E2352) else Color(0xFFC8E6C9)
-    val buttonBorder = BorderStroke(1.5.dp, if (isDark) Color(0xFF3B4380) else Color(0xFFA5D6A7))
-    val iconTint = if (isDark) Color.White else Color(0xFF1B4332)
-    val labelColor = if (isDark) Color(0xFFE0E0E0) else Color(0xFF2E7D32)
+    val buttonBg = when {
+        isHighlighted -> if (isDark) Color(0xFFFFB300) else Color(0xFFFFC107)
+        isDark -> Color(0xFF1E2352)
+        else -> Color(0xFFC8E6C9)
+    }
+    val buttonBorder = when {
+        isHighlighted -> BorderStroke(2.dp, Color(0xFFFFD54F))
+        isDark -> BorderStroke(1.5.dp, Color(0xFF3B4380))
+        else -> BorderStroke(1.5.dp, Color(0xFFA5D6A7))
+    }
+    val iconTint = when {
+        isHighlighted -> Color.Black
+        isDark -> Color.White
+        else -> Color(0xFF1B4332)
+    }
+    val labelColor = when {
+        isHighlighted -> if (isDark) Color(0xFFFFD54F) else Color(0xFFE65100)
+        isDark -> Color(0xFFE0E0E0)
+        else -> Color(0xFF2E7D32)
+    }
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,

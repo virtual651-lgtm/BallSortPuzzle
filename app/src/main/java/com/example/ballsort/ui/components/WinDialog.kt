@@ -207,7 +207,7 @@ fun WinDialog(
                                 )
                                 Spacer(modifier = Modifier.height(3.dp))
                                 Text(
-                                    text = "+150 Altın  •  +1 Ek Tüp  •  +2 Geri Alma",
+                                    text = "+150 Altın  •  +1 Ek Tüp  •  +1 Takas  •  +2 Geri Alma",
                                     style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
                                     color = if (isDark) Color.White else Color(0xFF4A148C),
                                 )

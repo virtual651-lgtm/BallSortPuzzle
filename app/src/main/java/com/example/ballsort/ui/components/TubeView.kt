@@ -93,10 +93,20 @@ fun TubeView(
     ballSkin: String = BallSkin.CLASSIC.id,
     tubeSkin: String = TubeSkin.GLASS.id,
     isLocked: Boolean = false,
+    isSwapSource: Boolean = false,
 ) {
     val context = LocalContext.current
     val density = LocalDensity.current
     val isCompleted = GameLogic.isTubeCompleted(tube, capacity)
+
+    // Tamamlanma ışıltı partikül animasyonu
+    val sparkleAnim = remember { Animatable(0f) }
+    LaunchedEffect(isCompleted) {
+        if (isCompleted) {
+            sparkleAnim.snapTo(0f)
+            sparkleAnim.animateTo(1f, tween(650))
+        }
+    }
 
     // Geçersiz hamle sallanma animasyonu
     val shakeOffset = remember { Animatable(0f) }
@@ -138,9 +148,9 @@ fun TubeView(
         label = "hintScale",
     )
 
-    // Seçilen tüpün en üst topu yukarı kalkar
+    // Seçilen veya takas edilen tüpün en üst topu yukarı kalkar
     val topLiftDp by animateDpAsState(
-        targetValue = if (isSelected) 16.dp else 0.dp,
+        targetValue = if (isSelected || isSwapSource) 16.dp else 0.dp,
         animationSpec = tween(150),
         label = "topLift",
     )
@@ -156,6 +166,7 @@ fun TubeView(
 
     val borderColor by animateColorAsState(
         targetValue = when {
+            isSwapSource -> Color(0xFFFFB300)
             isSelected -> MaterialTheme.colorScheme.primary
             isHintSource -> Color(0xFFFFC107)
             isHintTarget -> Color(0xFF00E676)
@@ -240,6 +251,28 @@ fun TubeView(
                     )
                 },
         ) {
+            // Tamamlanma kutlama ışıltısı
+            if (sparkleAnim.value in 0.01f..0.99f) {
+                val sp = sparkleAnim.value
+                val alpha = (1f - sp).coerceIn(0f, 1f)
+                val dist = sp * 24.dp.value
+                androidx.compose.foundation.Canvas(modifier = Modifier.fillMaxWidth().height(30.dp)) {
+                    val cx = size.width / 2f
+                    val cy = size.height / 2f
+                    val angles = listOf(-60f, -30f, 0f, 30f, 60f, -90f, 90f)
+                    for (ang in angles) {
+                        val rad = Math.toRadians(ang.toDouble()).toFloat()
+                        val sx = cx + kotlin.math.sin(rad) * dist * density.density
+                        val sy = cy - kotlin.math.cos(rad) * dist * density.density
+                        drawCircle(
+                            color = Color(0xFFFFD54F).copy(alpha = alpha),
+                            radius = (3.5f * (1f - sp * 0.4f)) * density.density,
+                            center = Offset(sx, sy),
+                        )
+                    }
+                }
+            }
+
             androidx.compose.animation.AnimatedVisibility(
                 visible = isCompleted,
                 enter = fadeIn(tween(220)) + scaleIn(initialScale = 0.7f, animationSpec = tween(220)),

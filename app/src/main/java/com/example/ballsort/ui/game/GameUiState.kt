@@ -22,6 +22,17 @@ data class TransferAnimation(
 )
 
 @Immutable
+data class SwapAnimation(
+    val id: Long,
+    val tubeA: Int,
+    val tubeB: Int,
+    val colorA: Int,
+    val colorB: Int,
+    val targetSlotA: Int,
+    val targetSlotB: Int,
+)
+
+@Immutable
 data class GameUiState(
     val levelId: Int = 1,
     val isDaily: Boolean = false,
@@ -43,9 +54,12 @@ data class GameUiState(
     val canUndo: Boolean = false,
     val freeUndosRemaining: Int = 3,
     val undoTokens: Int = 0,
+    val swapTokens: Int = 0,
     val coins: Int = 0,
     val extraTubeTokens: Int = 0,
     val extraTubeAvailable: Boolean = true,
+    val isSwapMode: Boolean = false,
+    val swapFirstSelectedTube: Int? = null,
     val status: GameStatus = GameStatus.Playing,
     val hintMove: Pair<Int, Int>? = null,
     val stars: Int = 0,
@@ -53,6 +67,7 @@ data class GameUiState(
     val isSolvingHint: Boolean = false,
     val isAnimating: Boolean = false,
     val activeTransfer: TransferAnimation? = null,
+    val activeSwapTransfer: SwapAnimation? = null,
     val invalidShakeTube: Int? = null,
     val invalidShakeToken: Long = 0L,
     val colorBlind: Boolean = false,

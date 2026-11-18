@@ -10,6 +10,7 @@ sealed interface GameEvent {
     data object Restart : GameEvent
     data object AddTube : GameEvent
     data object RequestHint : GameEvent
+    data object ToggleSwapMode : GameEvent
     data object NextLevel : GameEvent
     data object AnimationFinished : GameEvent
     data object ScreenResumed : GameEvent
@@ -24,4 +25,5 @@ sealed interface GameEffect {
     data object TubeCompleted : GameEffect
     data object LevelWon : GameEffect
     data object ChestOpened : GameEffect
+    data object SwapCompleted : GameEffect
 }

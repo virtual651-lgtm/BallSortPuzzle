@@ -23,6 +23,8 @@ interface ProgressRepository {
     suspend fun addUndoTokens(amount: Int) {}
     suspend fun useExtraTubeToken(): Boolean = true
     suspend fun addExtraTubeTokens(amount: Int) {}
+    suspend fun useSwapToken(): Boolean = true
+    suspend fun addSwapTokens(amount: Int) {}
     suspend fun unlockSkin(skinName: String) {}
 }
 

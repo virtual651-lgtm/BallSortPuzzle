@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -35,12 +36,15 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
@@ -51,6 +55,7 @@ import com.example.ballsort.data.Settings
 import com.example.ballsort.domain.model.GameStatus
 import com.example.ballsort.platform.Haptics
 import com.example.ballsort.platform.SoundPlayer
+import com.example.ballsort.ui.components.CoinFlyOverlay
 import com.example.ballsort.ui.components.ConfettiOverlay
 import com.example.ballsort.ui.components.FlyingBallOverlay
 import com.example.ballsort.ui.components.GameBackdrop
@@ -135,6 +140,10 @@ fun GameScreen(
                     soundPlayer.playWin(settings.sound)
                     haptics.win(settings.vibration)
                 }
+                GameEffect.SwapCompleted -> {
+                    soundPlayer.playPlace(settings.sound)
+                    haptics.tubeComplete(settings.vibration)
+                }
             }
         }
     }
@@ -192,6 +201,7 @@ fun GameScreenContent(
     val slotPoints = remember { mutableStateMapOf<Pair<Int, Int>, Offset>() }
     val topExitPoints = remember { mutableStateMapOf<Int, Offset>() }
     var boardRootTopLeft by remember { mutableStateOf(Offset.Zero) }
+    val isDark = MaterialTheme.colorScheme.background.luminance() < 0.5f
 
     GameBackdrop(modifier = modifier.fillMaxSize()) {
         Scaffold(
@@ -227,9 +237,11 @@ fun GameScreenContent(
                 coins = uiState.coins,
                 extraTubeAvailable = uiState.extraTubeAvailable && !uiState.isAnimating,
                 extraTubeTokens = uiState.extraTubeTokens,
+                swapTokens = uiState.swapTokens,
+                isSwapMode = uiState.isSwapMode,
                 isSolvingHint = uiState.isSolvingHint,
                 onUndo = { onEvent(GameEvent.Undo) },
-                onRestart = { onEvent(GameEvent.Restart) },
+                onSwap = { onEvent(GameEvent.ToggleSwapMode) },
                 onHint = { onEvent(GameEvent.RequestHint) },
                 onAddTube = { onEvent(GameEvent.AddTube) },
             )
@@ -287,10 +299,18 @@ fun GameScreenContent(
                                 rowItems.forEach { indexedTube ->
                                     val idx = indexedTube.index
                                     val transfer = uiState.activeTransfer
-                                    val hiddenSlots = if (transfer != null && transfer.to == idx) {
-                                        transfer.targetStartSlot until (transfer.targetStartSlot + transfer.count)
-                                    } else {
-                                        IntRange.EMPTY
+                                    val swap = uiState.activeSwapTransfer
+                                    val hiddenSlots = when {
+                                        transfer != null && transfer.to == idx -> {
+                                            transfer.targetStartSlot until (transfer.targetStartSlot + transfer.count)
+                                        }
+                                        swap != null && swap.tubeA == idx -> {
+                                            swap.targetSlotA..swap.targetSlotA
+                                        }
+                                        swap != null && swap.tubeB == idx -> {
+                                            swap.targetSlotB..swap.targetSlotB
+                                        }
+                                        else -> IntRange.EMPTY
                                     }
 
                                     TubeView(
@@ -308,6 +328,7 @@ fun GameScreenContent(
                                         ballSkin = uiState.ballSkin,
                                         tubeSkin = uiState.tubeSkin,
                                         isLocked = uiState.lockedTubeIndex == idx,
+                                        isSwapSource = uiState.swapFirstSelectedTube == idx,
                                         onSlotMeasured = { slot, center ->
                                             slotPoints[idx to slot] = center
                                         },
@@ -322,9 +343,36 @@ fun GameScreenContent(
                         Spacer(modifier = Modifier.height(4.dp))
                     }
 
+                    // Takas Modu Bilgilendirme Rozeti
+                    if (uiState.isSwapMode) {
+                        androidx.compose.material3.Surface(
+                            shape = androidx.compose.foundation.shape.RoundedCornerShape(16.dp),
+                            color = Color(0xFFFFB300).copy(alpha = 0.22f),
+                            border = androidx.compose.foundation.BorderStroke(1.5.dp, Color(0xFFFFB300)),
+                            modifier = Modifier
+                                .align(Alignment.TopCenter)
+                                .padding(top = 2.dp),
+                        ) {
+                            Text(
+                                text = if (uiState.swapFirstSelectedTube == null) {
+                                    stringResource(R.string.swap_mode_hint_1)
+                                } else {
+                                    stringResource(R.string.swap_mode_hint_2)
+                                },
+                                style = MaterialTheme.typography.labelMedium.copy(
+                                    fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
+                                    fontSize = 13.sp,
+                                ),
+                                color = if (isDark) Color(0xFFFFD54F) else Color(0xFFE65100),
+                                modifier = Modifier.padding(horizontal = 14.dp, vertical = 6.dp),
+                            )
+                        }
+                    }
+
                     // Uçan top animasyon katmanı
                     FlyingBallOverlay(
                         transfer = uiState.activeTransfer,
+                        swapTransfer = uiState.activeSwapTransfer,
                         ballSize = ballSize,
                         colorBlind = uiState.colorBlind,
                         ballSkin = uiState.ballSkin,
@@ -336,6 +384,7 @@ fun GameScreenContent(
                 }
             }
 
+            CoinFlyOverlay(visible = uiState.status == GameStatus.Won && uiState.earnedCoins > 0)
             ConfettiOverlay(visible = uiState.status == GameStatus.Won)
         }
         }

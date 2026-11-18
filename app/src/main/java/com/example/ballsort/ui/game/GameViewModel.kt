@@ -92,6 +92,7 @@ class GameViewModel @Inject constructor(
                         coins = save.coins,
                         extraTubeTokens = save.extraTubeTokens,
                         undoTokens = save.undoTokens,
+                        swapTokens = save.swapTokens,
                         extraTubeAvailable = !extraTubeUsed && (save.extraTubeTokens > 0 || save.coins >= 80),
                     )
                 }
@@ -233,6 +234,7 @@ class GameViewModel @Inject constructor(
                     coins = save.coins,
                     extraTubeTokens = save.extraTubeTokens,
                     undoTokens = save.undoTokens,
+                    swapTokens = save.swapTokens,
                     extraTubeAvailable = !extraTubeUsed && (save.extraTubeTokens > 0 || save.coins >= 80),
                     status = resumedStatus,
                     isLoading = false,
@@ -286,6 +288,7 @@ class GameViewModel @Inject constructor(
                     coins = save.coins,
                     extraTubeTokens = save.extraTubeTokens,
                     undoTokens = save.undoTokens,
+                    swapTokens = save.swapTokens,
                     extraTubeAvailable = save.extraTubeTokens > 0 || save.coins >= 80,
                     status = GameStatus.Playing,
                     isLoading = false,
@@ -308,6 +311,7 @@ class GameViewModel @Inject constructor(
             GameEvent.Restart -> handleRestart()
             GameEvent.AddTube -> handleAddTube()
             GameEvent.RequestHint -> handleHint()
+            GameEvent.ToggleSwapMode -> handleToggleSwapMode()
             GameEvent.NextLevel -> handleNextLevel()
             GameEvent.AnimationFinished -> handleAnimationFinished()
             GameEvent.RequestRematch -> lanDuelTransport.requestRematch()
@@ -329,6 +333,11 @@ class GameViewModel @Inject constructor(
         val state = _uiState.value
         if (state.isLoading || state.isAnimating || state.status != GameStatus.Playing) return
         if (index !in state.tubes.indices) return
+
+        if (state.isSwapMode) {
+            handleSwapTap(index)
+            return
+        }
 
         val selected = state.selectedTube
         if (selected == null) {
@@ -424,7 +433,7 @@ class GameViewModel @Inject constructor(
 
     private fun handleAnimationFinished() {
         val state = _uiState.value
-        if (!state.isAnimating && state.activeTransfer == null) return
+        if (!state.isAnimating && state.activeTransfer == null && state.activeSwapTransfer == null) return
 
         val endStatus = pendingEndStatus
         pendingEndStatus = null
@@ -436,6 +445,7 @@ class GameViewModel @Inject constructor(
                 it.copy(
                     isAnimating = false,
                     activeTransfer = null,
+                    activeSwapTransfer = null,
                     status = GameStatus.Won,
                 )
             }
@@ -447,6 +457,7 @@ class GameViewModel @Inject constructor(
                 it.copy(
                     isAnimating = false,
                     activeTransfer = null,
+                    activeSwapTransfer = null,
                     status = GameStatus.Stuck,
                 )
             }
@@ -455,8 +466,151 @@ class GameViewModel @Inject constructor(
                 it.copy(
                     isAnimating = false,
                     activeTransfer = null,
+                    activeSwapTransfer = null,
                 )
             }
+        }
+    }
+
+    private fun handleToggleSwapMode() {
+        val state = _uiState.value
+        if (state.isLoading || state.isAnimating || state.status != GameStatus.Playing) return
+
+        if (!state.isSwapMode) {
+            val canSwap = state.swapTokens > 0 || state.coins >= 50
+            if (!canSwap) {
+                shakeSeq++
+                _uiState.update {
+                    it.copy(invalidShakeToken = shakeSeq)
+                }
+                _effects.tryEmit(GameEffect.InvalidMove)
+                return
+            }
+            _uiState.update {
+                it.copy(
+                    isSwapMode = true,
+                    swapFirstSelectedTube = null,
+                    selectedTube = null,
+                    hintMove = null,
+                )
+            }
+            _effects.tryEmit(GameEffect.SelectTube)
+        } else {
+            _uiState.update {
+                it.copy(
+                    isSwapMode = false,
+                    swapFirstSelectedTube = null,
+                )
+            }
+        }
+    }
+
+    private fun handleSwapTap(index: Int) {
+        val state = _uiState.value
+        val firstSelected = state.swapFirstSelectedTube
+        if (firstSelected == null) {
+            if (state.tubes[index].isEmpty()) {
+                shakeSeq++
+                _uiState.update {
+                    it.copy(
+                        invalidShakeTube = index,
+                        invalidShakeToken = shakeSeq,
+                    )
+                }
+                _effects.tryEmit(GameEffect.InvalidMove)
+                return
+            }
+            _uiState.update { it.copy(swapFirstSelectedTube = index) }
+            _effects.tryEmit(GameEffect.SelectTube)
+            return
+        }
+
+        if (firstSelected == index) {
+            _uiState.update { it.copy(swapFirstSelectedTube = null) }
+            return
+        }
+
+        if (state.tubes[index].isEmpty()) {
+            shakeSeq++
+            _uiState.update {
+                it.copy(
+                    invalidShakeTube = index,
+                    invalidShakeToken = shakeSeq,
+                )
+            }
+            _effects.tryEmit(GameEffect.InvalidMove)
+            return
+        }
+
+        val tubeA = firstSelected
+        val tubeB = index
+        val ballsA = state.tubes[tubeA]
+        val ballsB = state.tubes[tubeB]
+        val ballA = ballsA.last()
+        val ballB = ballsB.last()
+
+        viewModelScope.launch {
+            val paid = if (state.swapTokens > 0) {
+                progressRepository.useSwapToken()
+            } else if (state.coins >= 50) {
+                progressRepository.spendCoins(50)
+            } else {
+                false
+            }
+
+            if (!paid) {
+                shakeSeq++
+                _uiState.update {
+                    it.copy(
+                        isSwapMode = false,
+                        swapFirstSelectedTube = null,
+                        invalidShakeTube = index,
+                        invalidShakeToken = shakeSeq,
+                    )
+                }
+                _effects.tryEmit(GameEffect.InvalidMove)
+                return@launch
+            }
+
+            val newTubeA = ballsA.dropLast(1) + ballB
+            val newTubeB = ballsB.dropLast(1) + ballA
+            val nextTubes = state.tubes.toMutableList().apply {
+                this[tubeA] = newTubeA
+                this[tubeB] = newTubeB
+            }
+
+            val nextMoves = state.moves + 1
+            val won = GameLogic.isSolved(nextTubes, state.capacity)
+            val moveLimitReached = state.maxMoves != null && nextMoves >= state.maxMoves
+            val stuck = !won && (moveLimitReached || GameLogic.isStuck(nextTubes, state.capacity))
+
+            pendingEndStatus = when {
+                won -> GameStatus.Won
+                stuck -> GameStatus.Stuck
+                else -> null
+            }
+
+            transferSeq++
+            _uiState.update {
+                it.copy(
+                    tubes = nextTubes,
+                    moves = nextMoves,
+                    isSwapMode = false,
+                    swapFirstSelectedTube = null,
+                    isAnimating = true,
+                    activeSwapTransfer = SwapAnimation(
+                        id = transferSeq,
+                        tubeA = tubeA,
+                        tubeB = tubeB,
+                        colorA = ballA,
+                        colorB = ballB,
+                        targetSlotA = newTubeA.size - 1,
+                        targetSlotB = newTubeB.size - 1,
+                    ),
+                )
+            }
+            _effects.tryEmit(GameEffect.SwapCompleted)
+            persistInProgress()
         }
     }
 

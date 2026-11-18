@@ -26,6 +26,7 @@ data class SaveData(
     val coins: Int = 200,
     val extraTubeTokens: Int = 2,
     val undoTokens: Int = 5,
+    val swapTokens: Int = 2,
     val hasMigratedRetroactiveCoins: Boolean = false,
     val unlockedSkins: List<String> = listOf("classic", "glass"),
 )

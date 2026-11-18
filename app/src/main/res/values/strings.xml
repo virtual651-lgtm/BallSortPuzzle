@@ -77,9 +77,12 @@
     <string name="moves_limit_label">%1$d/%2$d hamle</string>
     <string name="stuck_move_limit_message">Hamle sınırına ulaşıldı. Son hamleyi geri alabilir, yeniden başlatabilir veya ekstra tüp ekleyebilirsin.</string>
     <string name="action_undo">Geri Al</string>
+    <string name="action_swap">Takas</string>
     <string name="action_restart">Yeniden</string>
     <string name="action_hint">İpucu</string>
     <string name="action_add_tube">+Tüp</string>
+    <string name="swap_mode_hint_1">🔄 Takas Modu: Değiştirmek istediğin 1. tüpü seç</string>
+    <string name="swap_mode_hint_2">🔄 Takas Modu: Değiştirmek istediğin 2. tüpü seç</string>
     <string name="back">Geri</string>
 
     <string name="win_title">Tebrikler!</string>
