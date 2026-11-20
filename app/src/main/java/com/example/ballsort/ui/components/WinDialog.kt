@@ -46,6 +46,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -92,6 +93,38 @@ fun WinDialog(
 ) {
     val isDark = MaterialTheme.colorScheme.background.luminance() < 0.5f
     var revealedStars by remember(stars) { mutableIntStateOf(0) }
+    var dialogOpened by remember { mutableStateOf(false) }
+
+    LaunchedEffect(Unit) {
+        dialogOpened = true
+    }
+
+    val cardScale by animateFloatAsState(
+        targetValue = if (dialogOpened) 1f else 0.78f,
+        animationSpec = spring(
+            dampingRatio = 0.55f,
+            stiffness = Spring.StiffnessMediumLow,
+        ),
+        label = "cardScale",
+    )
+
+    val ribbonDropOffset by animateFloatAsState(
+        targetValue = if (dialogOpened) 0f else -32f,
+        animationSpec = spring(
+            dampingRatio = 0.48f,
+            stiffness = Spring.StiffnessMediumLow,
+        ),
+        label = "ribbonDrop",
+    )
+
+    val ribbonScale by animateFloatAsState(
+        targetValue = if (dialogOpened) 1f else 0.65f,
+        animationSpec = spring(
+            dampingRatio = 0.5f,
+            stiffness = Spring.StiffnessMediumLow,
+        ),
+        label = "ribbonScale",
+    )
 
     LaunchedEffect(stars) {
         revealedStars = 0
@@ -112,7 +145,7 @@ fun WinDialog(
                 .fillMaxWidth()
                 .padding(horizontal = 24.dp),
         ) {
-            // Ana Kart Gövdesi
+            // Ana Kart Gövdesi (Yaylanarak açılma animasyonu ile)
             Card(
                 shape = RoundedCornerShape(32.dp),
                 colors = CardDefaults.cardColors(
@@ -125,7 +158,8 @@ fun WinDialog(
                 elevation = CardDefaults.cardElevation(defaultElevation = 16.dp),
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(top = 18.dp),
+                    .padding(top = 18.dp)
+                    .scale(cardScale),
             ) {
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
@@ -376,11 +410,12 @@ fun WinDialog(
                 }
             }
 
-            // Tepeye Asılı Altın Şerit Banner (✨ TEBRİKLER! ✨)
+            // Tepeye Asılı Altın Şerit Banner (✨ TEBRİKLER! ✨ — Düşme ve yaylanma animasyonu ile)
             Box(
                 contentAlignment = Alignment.Center,
                 modifier = Modifier
-                    .offset(y = 0.dp)
+                    .offset(y = ribbonDropOffset.dp)
+                    .scale(ribbonScale)
                     .background(
                         brush = Brush.horizontalGradient(
                             listOf(Color(0xFFFFB300), Color(0xFFFFD54F), Color(0xFFFF8F00))

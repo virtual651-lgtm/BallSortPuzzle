@@ -7,10 +7,20 @@ package com.example.ballsort.ui.menu
 import android.content.Intent
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.Arrangement
@@ -37,6 +47,7 @@ import androidx.compose.material.icons.filled.Lightbulb
 import androidx.compose.material.icons.filled.Palette
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.luminance
@@ -296,9 +307,28 @@ fun MenuScreen(
 
                 Spacer(modifier = Modifier.weight(0.6f))
 
-                // 3. BÜYÜK 3D "BAŞLA" BUTONU
+                // 3. BÜYÜK 3D "BAŞLA" BUTONU — Nefes alan nabız animasyonu
+                val pulseTransition = rememberInfiniteTransition(label = "playPulse")
+                val pulseScale by pulseTransition.animateFloat(
+                    initialValue = 1f,
+                    targetValue = 1.030f,
+                    animationSpec = infiniteRepeatable(
+                        animation = tween(900, easing = FastOutSlowInEasing),
+                        repeatMode = RepeatMode.Reverse,
+                    ),
+                    label = "playScale",
+                )
+                val playInteraction = remember { MutableInteractionSource() }
+                val isPlayPressed by playInteraction.collectIsPressedAsState()
+                val playPressScale by animateFloatAsState(
+                    targetValue = if (isPlayPressed) 0.96f else pulseScale,
+                    animationSpec = spring(dampingRatio = 0.55f),
+                    label = "playPress",
+                )
+
                 Button(
                     onClick = { onPlayLevel(uiState.nextLevelId) },
+                    interactionSource = playInteraction,
                     contentPadding = PaddingValues(0.dp),
                     shape = RoundedCornerShape(28.dp),
                     colors = androidx.compose.material3.ButtonDefaults.buttonColors(
@@ -306,7 +336,8 @@ fun MenuScreen(
                     ),
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(52.dp),
+                        .height(52.dp)
+                        .scale(playPressScale),
                 ) {
                     val btnGradient = if (isDark) {
                         listOf(Color(0xFFFFC107), Color(0xFFFFA000))
@@ -1012,6 +1043,18 @@ private fun BotDifficultyDialog(
 
 @Composable
 private fun HeroTubesIllustration(isDark: Boolean) {
+    // Yavaş sallanma animasyonu — tüpler sürekli hafifçe ileri-geri döner
+    val swingTransition = rememberInfiniteTransition(label = "heroSwing")
+    val swingAngle by swingTransition.animateFloat(
+        initialValue = -3f,
+        targetValue = 3f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(1800, easing = FastOutSlowInEasing),
+            repeatMode = RepeatMode.Reverse,
+        ),
+        label = "swingAngle",
+    )
+
     Box(
         contentAlignment = Alignment.Center,
         modifier = Modifier
@@ -1048,26 +1091,26 @@ private fun HeroTubesIllustration(isDark: Boolean) {
             drawCircle(Color(0xFFFB8C00), radius = 4.dp.toPx(), center = Offset(cx + 40.dp.toPx(), cy - 48.dp.toPx()))
         }
 
-        // 3 Açılı Cam Tüp
+        // 3 Açılı Cam Tüp — sallanma animasyonuyla
         Row(
             horizontalArrangement = Arrangement.spacedBy(14.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            // Sol Tüp (-9 derece eğik)
+            // Sol Tüp (-9 + swing derece eğik)
             CartoonTube(
-                rotation = -9f,
+                rotation = -9f + swingAngle * 0.6f,
                 colors = listOf(Color(0xFFE53935), Color(0xFF1E88E5), Color(0xFFFDD835)),
                 isDark = isDark,
             )
-            // Orta Tüp (Düz)
+            // Orta Tüp (swingin tersi)
             CartoonTube(
-                rotation = 0f,
+                rotation = -swingAngle * 0.4f,
                 colors = listOf(Color(0xFF43A047), Color(0xFFE53935), Color(0xFF1E88E5)),
                 isDark = isDark,
             )
-            // Sağ Tüp (+9 derece eğik)
+            // Sağ Tüp (+9 + swing derece eğik)
             CartoonTube(
-                rotation = 9f,
+                rotation = 9f + swingAngle * 0.6f,
                 colors = listOf(Color(0xFFFDD835), Color(0xFF43A047), Color(0xFFFDD835)),
                 isDark = isDark,
             )
@@ -1147,12 +1190,22 @@ private fun CircularMenuItem(
     isDark: Boolean,
     onClick: () -> Unit,
 ) {
+    val interactionSource = remember { MutableInteractionSource() }
+    val isPressed by interactionSource.collectIsPressedAsState()
+    val scale by animateFloatAsState(
+        targetValue = if (isPressed) 0.88f else 1f,
+        animationSpec = spring(dampingRatio = 0.52f),
+        label = "menuItemScale_$label",
+    )
+
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(4.dp),
+        modifier = Modifier.scale(scale),
     ) {
         androidx.compose.material3.Surface(
             onClick = onClick,
+            interactionSource = interactionSource,
             shape = CircleShape,
             color = if (isDark) Color(0xFF1D2254) else Color(0xFFC8E6C9),
             border = BorderStroke(

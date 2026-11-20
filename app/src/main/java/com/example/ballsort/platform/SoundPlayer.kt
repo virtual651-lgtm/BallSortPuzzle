@@ -12,35 +12,51 @@ import javax.inject.Singleton
 @Singleton
 class SoundPlayer @Inject constructor() {
 
-    // VARSAYIM: res/raw altında özel .ogg ses dosyaları henüz olmadığı için
-    // sistem ToneGenerator ile hafif etkileşim tonları üretilir.
+    // Ses seviyesi 65 olarak ayarlandı — daha net ve tatmin edici
     private var toneGenerator: ToneGenerator? = runCatching {
-        ToneGenerator(AudioManager.STREAM_MUSIC, 45)
+        ToneGenerator(AudioManager.STREAM_MUSIC, 65)
     }.getOrNull()
 
     fun playSelect(enabled: Boolean) {
         if (!enabled) return
-        runCatching { toneGenerator?.startTone(ToneGenerator.TONE_PROP_BEEP, 45) }
+        // Kısa, net ve hafif seçim tonu
+        runCatching { toneGenerator?.startTone(ToneGenerator.TONE_PROP_BEEP, 35) }
     }
 
     fun playPlace(enabled: Boolean) {
         if (!enabled) return
-        runCatching { toneGenerator?.startTone(ToneGenerator.TONE_PROP_ACK, 65) }
+        // Top yerleştirildiğinde tok ve tatmin edici dokunuş tonu
+        runCatching { toneGenerator?.startTone(ToneGenerator.TONE_PROP_ACK, 50) }
     }
 
     fun playInvalid(enabled: Boolean) {
         if (!enabled) return
-        runCatching { toneGenerator?.startTone(ToneGenerator.TONE_PROP_NACK, 90) }
+        // Geçersiz hamle geri bildirimi
+        runCatching { toneGenerator?.startTone(ToneGenerator.TONE_PROP_NACK, 80) }
     }
 
     fun playTubeCompleted(enabled: Boolean) {
         if (!enabled) return
-        runCatching { toneGenerator?.startTone(ToneGenerator.TONE_PROP_BEEP2, 130) }
+        // Tüp tamamlandığında neşeli çınlama tonu
+        runCatching { toneGenerator?.startTone(ToneGenerator.TONE_CDMA_ALERT_NETWORK_LITE, 160) }
     }
 
     fun playWin(enabled: Boolean) {
         if (!enabled) return
-        runCatching { toneGenerator?.startTone(ToneGenerator.TONE_SUP_CONFIRM, 240) }
+        // Seviye kazanıldığında zafer teyit tonu
+        runCatching { toneGenerator?.startTone(ToneGenerator.TONE_CDMA_CONFIRM, 260) }
+    }
+
+    fun playChest(enabled: Boolean) {
+        if (!enabled) return
+        // Hazine sandığı açıldığında zengin kutlama tonu
+        runCatching { toneGenerator?.startTone(ToneGenerator.TONE_SUP_CONFIRM, 320) }
+    }
+
+    fun playSwap(enabled: Boolean) {
+        if (!enabled) return
+        // Takas gücü kullanıldığında sihir tonu
+        runCatching { toneGenerator?.startTone(ToneGenerator.TONE_PROP_BEEP2, 90) }
     }
 
     fun release() {

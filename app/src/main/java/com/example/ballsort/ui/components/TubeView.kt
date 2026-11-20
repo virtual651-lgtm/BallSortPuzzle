@@ -7,12 +7,15 @@ package com.example.ballsort.ui.components
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.keyframes
 import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -104,7 +107,7 @@ fun TubeView(
     LaunchedEffect(isCompleted) {
         if (isCompleted) {
             sparkleAnim.snapTo(0f)
-            sparkleAnim.animateTo(1f, tween(650))
+            sparkleAnim.animateTo(1f, tween(750, easing = FastOutSlowInEasing))
         }
     }
 
@@ -127,12 +130,12 @@ fun TubeView(
         }
     }
 
-    // Tamamlanan tüpte hafif büyüme nabzı
+    // Tamamlanan tüpte kutlama büyüme nabzı
     val completeScale = remember { Animatable(1f) }
     LaunchedEffect(isCompleted) {
         if (isCompleted) {
-            completeScale.animateTo(1.06f, tween(180))
-            completeScale.animateTo(1f, tween(280))
+            completeScale.animateTo(1.10f, spring(dampingRatio = 0.45f, stiffness = Spring.StiffnessMedium))
+            completeScale.animateTo(1f, spring(dampingRatio = 0.6f))
         }
     }
 
@@ -148,10 +151,13 @@ fun TubeView(
         label = "hintScale",
     )
 
-    // Seçilen veya takas edilen tüpün en üst topu yukarı kalkar
+    // Seçilen veya takas edilen tüpün en üst topu yukarı kalkar (esnek yaylanma ile)
     val topLiftDp by animateDpAsState(
-        targetValue = if (isSelected || isSwapSource) 16.dp else 0.dp,
-        animationSpec = tween(150),
+        targetValue = if (isSelected || isSwapSource) 18.dp else 0.dp,
+        animationSpec = spring(
+            dampingRatio = 0.58f,
+            stiffness = Spring.StiffnessMediumLow,
+        ),
         label = "topLift",
     )
 
@@ -251,22 +257,34 @@ fun TubeView(
                     )
                 },
         ) {
-            // Tamamlanma kutlama ışıltısı
+            // Tamamlanma kutlama ışıltısı — çok renkli yıldız/ışık partikülleri
             if (sparkleAnim.value in 0.01f..0.99f) {
                 val sp = sparkleAnim.value
                 val alpha = (1f - sp).coerceIn(0f, 1f)
-                val dist = sp * 24.dp.value
-                androidx.compose.foundation.Canvas(modifier = Modifier.fillMaxWidth().height(30.dp)) {
+                val dist = sp * 28.dp.value
+                androidx.compose.foundation.Canvas(modifier = Modifier.fillMaxWidth().height(36.dp)) {
                     val cx = size.width / 2f
                     val cy = size.height / 2f
-                    val angles = listOf(-60f, -30f, 0f, 30f, 60f, -90f, 90f)
-                    for (ang in angles) {
+                    val particles = listOf(
+                        Triple(-75f, Color(0xFFFFD54F), 3.5f),
+                        Triple(-50f, Color(0xFFFF80AB), 2.8f),
+                        Triple(-30f, Color(0xFF69F0AE), 3.2f),
+                        Triple(-15f, Color(0xFFFFD54F), 4f),
+                        Triple(0f, Color(0xFF40C4FF), 3.5f),
+                        Triple(15f, Color(0xFFFFD54F), 3.8f),
+                        Triple(30f, Color(0xFFFF80AB), 3f),
+                        Triple(50f, Color(0xFF69F0AE), 3.4f),
+                        Triple(75f, Color(0xFFFFD54F), 3.6f),
+                        Triple(-105f, Color(0xFFFFF59D), 2.5f),
+                        Triple(105f, Color(0xFFFFF59D), 2.5f),
+                    )
+                    for ((ang, pColor, baseR) in particles) {
                         val rad = Math.toRadians(ang.toDouble()).toFloat()
                         val sx = cx + kotlin.math.sin(rad) * dist * density.density
                         val sy = cy - kotlin.math.cos(rad) * dist * density.density
                         drawCircle(
-                            color = Color(0xFFFFD54F).copy(alpha = alpha),
-                            radius = (3.5f * (1f - sp * 0.4f)) * density.density,
+                            color = pColor.copy(alpha = alpha),
+                            radius = (baseR * (1f - sp * 0.35f)) * density.density,
                             center = Offset(sx, sy),
                         )
                     }

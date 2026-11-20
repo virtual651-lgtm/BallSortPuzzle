@@ -1,6 +1,6 @@
 {
-  "latestVersionCode": 10,
-  "versionName": "1.3.1",
+  "latestVersionCode": 11,
+  "versionName": "1.3.2",
   "apkUrl": "https://github.com/virtual651-lgtm/BallSortPuzzle/releases/latest/download/app-release.apk",
-  "notes": "👑 Saf Bulmaca & Zaman Baskısız Oyun Güncellemesi (v1.3.1):\n• ⏰ Zaman Baskısı Tamamen Kaldırıldı: 10. bölümlerdeki (Boss) süre/bot yarışı kaldırıldı. Oyuncu istediği kadar düşünerek, rahatça hamle yapabilir.\n• 🎯 Hamle Odaklı Arayüz: Üst bardaki sayaç artık gereksiz kronometre yerine sadece yapılan hamleleri gösterir.\n• 🎁 Büyük Hazine Sandığı Ödülleri: Boss bölümlerini tamamladığınızda büyük sandık ödülleri (+150 Altın, +1 Ek Tüp, +1 Takas, +2 Geri Alma) doğrudan verilir ve sonraki bölüme sorunsuz geçilir.\n• 🔄 Top Takası (Swap Booster) ve %100 Çözülebilir Seviyeler ile keyifli bulmaca deneyimi!"
+  "notes": "✨ Canlı Animasyonlar & Ses İyileştirmeleri (v1.3.2):\n• 🎈 Zenginleştirilmiş Animasyonlar: Menüde nefes alan 'Başla' butonu, hafif salınan cam tüpler, seviye seçiminde kademeli yumuşak geçişler ve parıldayan Boss kartları.\n• 🌟 Zafer & Kutlama Şöleni: Tüp tamamlandığında çok renkli ışıltı partikülleri, tebrikler şeridinin yaylanarak inmesi ve kutlama podyumu.\n• 🎵 Yenilenen Ses Efektleri: Netleşen dokunma ve yerleştirme tonları, hazine sandığı açılışında özel kutlama melodisi ve takas gücü için sihirli ses.\n• 🎯 Saf ve Rahat Bulmaca: Zaman baskısı olmadan dilediğiniz gibi düşünün ve oynayın!"
 }

@@ -4,9 +4,23 @@
  */
 package com.example.ballsort.ui.levels
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.scaleIn
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -24,6 +38,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -41,9 +56,14 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -54,6 +74,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.ballsort.R
 import com.example.ballsort.domain.model.LevelTier
 import com.example.ballsort.domain.model.PalaceTheme
+import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -63,6 +84,17 @@ fun LevelSelectScreen(
     viewModel: LevelSelectViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    // Boss kart altın ışıma animasyonu
+    val bossGlowTransition = rememberInfiniteTransition(label = "bossGlow")
+    val bossGlowAlpha by bossGlowTransition.animateFloat(
+        initialValue = 0.12f,
+        targetValue = 0.32f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(900, easing = FastOutSlowInEasing),
+            repeatMode = RepeatMode.Reverse,
+        ),
+        label = "bossGlowAlpha",
+    )
 
     Scaffold(
         modifier = Modifier
@@ -114,7 +146,7 @@ fun LevelSelectScreen(
     ) { innerPadding ->
         LazyVerticalGrid(
             columns = GridCells.Adaptive(minSize = 84.dp),
-            contentPadding = PaddingValues(16.dp),
+            contentPadding = PaddingValues(horizontal = 14.dp, vertical = 12.dp),
             horizontalArrangement = Arrangement.spacedBy(10.dp),
             verticalArrangement = Arrangement.spacedBy(10.dp),
             modifier = Modifier
@@ -127,6 +159,7 @@ fun LevelSelectScreen(
                 val isCurrent = levelId == uiState.unlockedLevel
                 val result = uiState.results[levelId]
                 val pacing = PalaceTheme.getPacing(levelId)
+                val isBoss = pacing.tier == LevelTier.BOSS
 
                 val tierBadge = when (pacing.tier) {
                     LevelTier.NORMAL -> null
@@ -135,78 +168,102 @@ fun LevelSelectScreen(
                     LevelTier.BOSS -> "👑 BOSS" to Color(0xFFFFB300)
                 }
 
-                Card(
-                    onClick = { if (unlocked) onSelectLevel(levelId) },
-                    enabled = unlocked,
-                    colors = CardDefaults.cardColors(
-                        containerColor = when {
-                            !unlocked -> MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.45f)
-                            pacing.tier == LevelTier.BOSS -> Color(0xFFFFB300).copy(alpha = 0.15f)
-                            isCurrent -> MaterialTheme.colorScheme.primaryContainer
-                            else -> MaterialTheme.colorScheme.surfaceVariant
-                        },
-                    ),
-                    border = when {
-                        isCurrent -> BorderStroke(2.dp, MaterialTheme.colorScheme.primary)
-                        pacing.tier == LevelTier.BOSS && unlocked -> BorderStroke(1.5.dp, Color(0xFFFFB300))
-                        else -> null
-                    },
-                    modifier = Modifier.aspectRatio(0.95f),
+                // Kart giriş animasyonu (kısa gecikmeyle skale+fade)
+                var visible by remember { mutableStateOf(false) }
+                LaunchedEffect(levelId) {
+                    delay((index % 20 * 18L).coerceAtMost(260L))
+                    visible = true
+                }
+
+                // Basılı tutma animasyonu
+                val interactionSource = remember { MutableInteractionSource() }
+                val isPressed by interactionSource.collectIsPressedAsState()
+                val pressScale by animateFloatAsState(
+                    targetValue = if (isPressed) 0.93f else 1f,
+                    animationSpec = spring(dampingRatio = 0.6f, stiffness = Spring.StiffnessMediumLow),
+                    label = "cardPress_$levelId",
+                )
+
+                AnimatedVisibility(
+                    visible = visible,
+                    enter = fadeIn(tween(220)) + scaleIn(initialScale = 0.82f, animationSpec = spring(dampingRatio = 0.65f)),
                 ) {
-                    Box(modifier = Modifier.fillMaxSize()) {
-                        if (tierBadge != null && unlocked) {
-                            Box(
+                    Card(
+                        onClick = { if (unlocked) onSelectLevel(levelId) },
+                        enabled = unlocked,
+                        interactionSource = interactionSource,
+                        colors = CardDefaults.cardColors(
+                            containerColor = when {
+                                !unlocked -> MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.45f)
+                                isBoss -> Color(0xFFFFB300).copy(alpha = bossGlowAlpha)
+                                isCurrent -> MaterialTheme.colorScheme.primaryContainer
+                                else -> MaterialTheme.colorScheme.surfaceVariant
+                            },
+                        ),
+                        border = when {
+                            isCurrent -> BorderStroke(2.dp, MaterialTheme.colorScheme.primary)
+                            isBoss && unlocked -> BorderStroke(1.5.dp, Color(0xFFFFB300))
+                            else -> null
+                        },
+                        modifier = Modifier
+                            .aspectRatio(0.95f)
+                            .scale(pressScale),
+                    ) {
+                        Box(modifier = Modifier.fillMaxSize()) {
+                            if (tierBadge != null && unlocked) {
+                                Box(
+                                    modifier = Modifier
+                                        .align(Alignment.TopEnd)
+                                        .background(tierBadge.second, RoundedCornerShape(bottomStart = 8.dp))
+                                        .padding(horizontal = 4.dp, vertical = 2.dp),
+                                ) {
+                                    Text(
+                                        text = tierBadge.first,
+                                        fontSize = 8.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = Color.White,
+                                    )
+                                }
+                            }
+
+                            Column(
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.Center,
                                 modifier = Modifier
-                                    .align(Alignment.TopEnd)
-                                    .background(tierBadge.second, RoundedCornerShape(bottomStart = 8.dp))
-                                    .padding(horizontal = 4.dp, vertical = 2.dp),
+                                    .fillMaxSize()
+                                    .padding(6.dp),
                             ) {
                                 Text(
-                                    text = tierBadge.first,
-                                    fontSize = 8.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    color = Color.White,
+                                    text = levelId.toString(),
+                                    style = MaterialTheme.typography.titleLarge.copy(
+                                        fontWeight = if (isCurrent || isBoss) FontWeight.Bold else FontWeight.Medium,
+                                    ),
                                 )
-                            }
-                        }
-
-                        Column(
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.Center,
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .padding(6.dp),
-                        ) {
-                            Text(
-                                text = levelId.toString(),
-                                style = MaterialTheme.typography.titleLarge.copy(
-                                    fontWeight = if (isCurrent || pacing.tier == LevelTier.BOSS) FontWeight.Bold else FontWeight.Medium,
-                                ),
-                            )
-                            Spacer(modifier = Modifier.height(4.dp))
-                            if (!unlocked) {
-                                Icon(
-                                    imageVector = Icons.Default.Lock,
-                                    contentDescription = stringResource(R.string.levels_locked),
-                                    modifier = Modifier.size(18.dp),
-                                )
-                            } else if (result != null) {
-                                Row(horizontalArrangement = Arrangement.spacedBy(2.dp)) {
-                                    for (s in 1..3) {
-                                        Icon(
-                                            imageVector = if (s <= result.stars) Icons.Filled.Star else Icons.Outlined.StarOutline,
-                                            contentDescription = null,
-                                            tint = if (s <= result.stars) Color(0xFFFFC107) else MaterialTheme.colorScheme.outline,
-                                            modifier = Modifier.size(16.dp),
-                                        )
+                                Spacer(modifier = Modifier.height(4.dp))
+                                if (!unlocked) {
+                                    Icon(
+                                        imageVector = Icons.Default.Lock,
+                                        contentDescription = stringResource(R.string.levels_locked),
+                                        modifier = Modifier.size(18.dp),
+                                    )
+                                } else if (result != null) {
+                                    Row(horizontalArrangement = Arrangement.spacedBy(2.dp)) {
+                                        for (s in 1..3) {
+                                            Icon(
+                                                imageVector = if (s <= result.stars) Icons.Filled.Star else Icons.Outlined.StarOutline,
+                                                contentDescription = null,
+                                                tint = if (s <= result.stars) Color(0xFFFFC107) else MaterialTheme.colorScheme.outline,
+                                                modifier = Modifier.size(16.dp),
+                                            )
+                                        }
                                     }
+                                    Spacer(modifier = Modifier.height(2.dp))
+                                    Text(
+                                        text = stringResource(R.string.levels_best_moves, result.bestMoves),
+                                        style = MaterialTheme.typography.labelSmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    )
                                 }
-                                Spacer(modifier = Modifier.height(2.dp))
-                                Text(
-                                    text = stringResource(R.string.levels_best_moves, result.bestMoves),
-                                    style = MaterialTheme.typography.labelSmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                )
                             }
                         }
                     }

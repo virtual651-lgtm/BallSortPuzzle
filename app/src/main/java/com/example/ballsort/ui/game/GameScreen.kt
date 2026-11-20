@@ -137,11 +137,11 @@ fun GameScreen(
                     haptics.win(settings.vibration)
                 }
                 GameEffect.ChestOpened -> {
-                    soundPlayer.playWin(settings.sound)
+                    soundPlayer.playChest(settings.sound)
                     haptics.win(settings.vibration)
                 }
                 GameEffect.SwapCompleted -> {
-                    soundPlayer.playPlace(settings.sound)
+                    soundPlayer.playSwap(settings.sound)
                     haptics.tubeComplete(settings.vibration)
                 }
             }
