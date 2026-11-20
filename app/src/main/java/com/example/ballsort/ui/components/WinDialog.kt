@@ -66,6 +66,7 @@ import androidx.compose.ui.window.DialogProperties
 import com.example.ballsort.R
 import com.example.ballsort.domain.model.BotDifficulty
 import com.example.ballsort.domain.model.LevelPacing
+import com.example.ballsort.domain.model.LevelTier
 import com.example.ballsort.util.formatDuration
 import kotlinx.coroutines.delay
 
@@ -137,7 +138,7 @@ fun WinDialog(
                     // Alt Başlık / Seviye Bilgisi
                     val subtitleText = when {
                         isLanDuel -> "Wi-Fi Düellosu Zaferi! 🏆"
-                        isDuel && pacing?.bossTitle != null -> "${pacing.bossTitle} Karşısında Zafer! 👑"
+                        pacing?.tier == LevelTier.BOSS -> "${pacing.bossTitle} Karşısında Zafer! 👑"
                         isDuel && botDifficulty != null -> "${stringResource(botDifficulty.titleRes)} Karşısında Zafer! 🏆"
                         isDuel -> stringResource(R.string.win_duel_subtitle)
                         isDaily -> stringResource(R.string.win_daily_subtitle)
@@ -215,7 +216,7 @@ fun WinDialog(
                         }
                     }
 
-                    // İstatistik Kapsülleri (Hamle & Süre)
+                    // İstatistik Kapsülleri (Hamle & Kazanılan Ödül)
                     Row(
                         horizontalArrangement = Arrangement.spacedBy(12.dp),
                         modifier = Modifier.fillMaxWidth(),
@@ -228,9 +229,9 @@ fun WinDialog(
                             modifier = Modifier.weight(1f),
                         )
                         StatPillCard(
-                            label = "SÜRE",
-                            value = formatDuration(elapsedMs),
-                            icon = "⏱️",
+                            label = "KAZANÇ",
+                            value = "+$earnedCoins",
+                            icon = "🪙",
                             isDark = isDark,
                             modifier = Modifier.weight(1f),
                         )

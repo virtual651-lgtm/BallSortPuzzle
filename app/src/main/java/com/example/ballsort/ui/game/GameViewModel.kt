@@ -177,14 +177,11 @@ class GameViewModel @Inject constructor(
             val isLanDuel = levelId == -3
             val pacing = if (levelId > 0) PalaceTheme.getPacing(levelId) else PalaceTheme.getPacing(1)
 
-            // Boss Seviyelerinde (% 10 == 0) Otomatik Rakip Düellosu Aktifleşir
+            // Boss Seviyelerinde (% 10 == 0) görsel tema, unvan ve sandık ödülleri aktiftir.
+            // Zaman baskısı ve bot yarışı kaldırılmıştır; oyuncu istediği kadar düşünerek oynayabilir.
             val isBossLevel = levelId > 0 && pacing.tier == LevelTier.BOSS
-            val isDuel = isCustomBotDuel || isBossLevel
-            val botDifficulty = when {
-                isCustomBotDuel -> BotDifficulty.fromLevelId(levelId)
-                isBossLevel -> if (pacing.isEraFinal) BotDifficulty.HARD else BotDifficulty.MEDIUM
-                else -> null
-            }
+            val isDuel = isCustomBotDuel
+            val botDifficulty = if (isCustomBotDuel) BotDifficulty.fromLevelId(levelId) else null
 
             val epochDay = if (isDaily) currentEpochDay() else null
             currentConfig = when {
@@ -815,7 +812,7 @@ class GameViewModel @Inject constructor(
             return
         }
         val nextId = when {
-            state.isDuel && !state.pacing.tier.name.contains("BOSS") -> state.levelId
+            state.isDuel -> state.levelId
             state.isDaily -> 1
             else -> state.levelId + 1
         }

@@ -1,6 +1,6 @@
 {
-  "latestVersionCode": 9,
-  "versionName": "1.3.0",
+  "latestVersionCode": 10,
+  "versionName": "1.3.1",
   "apkUrl": "https://github.com/virtual651-lgtm/BallSortPuzzle/releases/latest/download/app-release.apk",
-  "notes": "✨ Büyü & Takas Güncellemesi (v1.3.0):\n• 🔄 Top Takası (Swap Booster): Sıkıştığınız anlarda iki tüpün en üst toplarını çapraz kavisle yer değiştiren yeni güçlendirici!\n• 🎨 Alt Bar Sadeleştirmesi: Yeniden Başlat kaldırıldı, yerine taktiksel Top Takası entegre edildi.\n• 🤹 Juicy Animasyonlar: Top inişinde yaylanma/esneme (Squash & Bounce), tüp dolumunda altın ışıltı partikülleri ve zafer anında altın sayacına uçuş efekti!\n• 🎁 Büyük Hazine Sandığı: Boss geçildiğinde artık ekstra +1 Takas Jetonu verilir.\n• %100 Çözülebilir Seviyeler ve Saray Çağları ile kesintisiz eğlence!"
+  "notes": "👑 Saf Bulmaca & Zaman Baskısız Oyun Güncellemesi (v1.3.1):\n• ⏰ Zaman Baskısı Tamamen Kaldırıldı: 10. bölümlerdeki (Boss) süre/bot yarışı kaldırıldı. Oyuncu istediği kadar düşünerek, rahatça hamle yapabilir.\n• 🎯 Hamle Odaklı Arayüz: Üst bardaki sayaç artık gereksiz kronometre yerine sadece yapılan hamleleri gösterir.\n• 🎁 Büyük Hazine Sandığı Ödülleri: Boss bölümlerini tamamladığınızda büyük sandık ödülleri (+150 Altın, +1 Ek Tüp, +1 Takas, +2 Geri Alma) doğrudan verilir ve sonraki bölüme sorunsuz geçilir.\n• 🔄 Top Takası (Swap Booster) ve %100 Çözülebilir Seviyeler ile keyifli bulmaca deneyimi!"
 }

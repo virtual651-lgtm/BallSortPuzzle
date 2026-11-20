@@ -136,7 +136,8 @@ fun GameTopBar(
                         Text(
                             text = when {
                                 isLanDuel -> stringResource(R.string.menu_duel_lan_short)
-                                isDuel -> pacing?.bossTitle ?: stringResource(R.string.duel_level_title)
+                                pacing?.tier == LevelTier.BOSS -> pacing?.bossTitle ?: stringResource(R.string.duel_level_title)
+                                isDuel -> stringResource(R.string.duel_level_title)
                                 isDaily -> stringResource(R.string.daily_level_title)
                                 else -> stringResource(R.string.level_title, levelId)
                             },
@@ -205,7 +206,7 @@ fun GameTopBar(
                         }
                     }
 
-                    // Süre ve Hamle Sayaç Kapsülü
+                    // Hamle Sayaç Kapsülü (Zaman kısıtlaması yok, saf bulmaca keyfi)
                     Surface(
                         shape = RoundedCornerShape(14.dp),
                         color = circleBg,
@@ -214,20 +215,10 @@ fun GameTopBar(
                     ) {
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(6.dp),
-                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                            horizontalArrangement = Arrangement.spacedBy(4.dp),
+                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
                         ) {
-                            Text(
-                                text = formatDuration(elapsedMs),
-                                style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.SemiBold),
-                                color = primaryText,
-                            )
-                            Box(
-                                modifier = Modifier
-                                    .width(1.dp)
-                                    .height(10.dp)
-                                    .background(primaryText.copy(alpha = 0.25f))
-                            )
+                            Text(text = "🎯", fontSize = 11.sp)
                             Text(
                                 text = "$moves",
                                 style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
